@@ -41,11 +41,11 @@ namespace vmp
         u8 effectCmd;
         u8 effectValue;
         
-        const u8 FLAG_NOTE          = 1;
-        const u8 FLAG_INSTRUMENT    = 2;
-        const u8 FLAG_VOLUME        = 4;
-        const u8 FLAG_EFFECT_CMD    = 8;
-        const u8 FLAG_EFFECT_VALUE  = 16;
+        const u8 FLAG_NOTE          = (1 << 0);
+        const u8 FLAG_INSTRUMENT    = (1 << 1);
+        const u8 FLAG_VOLUME        = (1 << 2);
+        const u8 FLAG_EFFECT_CMD    = (1 << 3);
+        const u8 FLAG_EFFECT_VALUE  = (1 << 4);
         
     public:
         bool hasNote();
