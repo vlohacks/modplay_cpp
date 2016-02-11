@@ -48,6 +48,9 @@ namespace vmp
         const u8 FLAG_EFFECT_VALUE  = (1 << 4);
         
     public:
+        PatternData();
+        ~PatternData();
+        
         bool hasNote();
         bool hasInstrument();
         bool hasVolume();

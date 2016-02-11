@@ -34,27 +34,37 @@ namespace vmp
     u8 PatternData::getEffectValueLower()   { return (effectValue & 0x0f); }
     u8 PatternData::getEffectValueUpper()   { return (effectValue >> 4); }
     
-    void PatternData::setNote(u8 val) { 
+    PatternData::PatternData()
+        :flags(0) {}
+    
+    PatternData::~PatternData() {}
+    
+    void PatternData::setNote(u8 val) 
+    { 
         note = val; 
         flags |= FLAG_NOTE;
     }
     
-    void PatternData::setInstrument(u8 val) { 
+    void PatternData::setInstrument(u8 val) 
+    { 
         instrument = val; 
         flags |= FLAG_INSTRUMENT;
     }
     
-    void PatternData::setVolume(u8 val) { 
+    void PatternData::setVolume(u8 val) 
+    { 
         volume = val; 
         flags |= FLAG_VOLUME;
     }
     
-    void PatternData::setEffectCmd(u8 val) { 
+    void PatternData::setEffectCmd(u8 val) 
+    { 
         effectCmd = val; 
         flags |= FLAG_EFFECT_CMD;
     }
     
-    void PatternData::setEffectValue(u8 val) { 
+    void PatternData::setEffectValue(u8 val) 
+    { 
         effectValue = val;
         flags |= FLAG_EFFECT_VALUE;
     }
