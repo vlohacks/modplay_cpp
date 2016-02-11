@@ -1,6 +1,6 @@
 CC	= gcc
 CXX	= g++
-SRCS	= Io.cpp IoFile.cpp PatternData.cpp main.cpp
+SRCS	= Io.cpp IoFile.cpp main.cpp Pattern.cpp PatternRow.cpp PatternData.cpp
 BIN	= modplay
 CCFLAGS = -Wall -O3
 CXXFLAGS = -std=c++11 -Wall -O3

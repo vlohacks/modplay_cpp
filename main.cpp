@@ -18,6 +18,8 @@
 #include "Io.hpp"
 #include "IoFile.hpp"
 
+#include "Pattern.hpp"
+
 int main(int argc, char** argv) 
 {
 
@@ -25,7 +27,20 @@ int main(int argc, char** argv)
 
 	for (int i = 0; i < 10; i++) {
 		printf("%x\n", f->readU8());
-	}
+	}   
+        
+        vmp::Pattern p(64, 4);
+        
+        p.getRow(0).getData(0).setVolume(32);
+        p.getRow(0).getData(0).setEffectCmd(0x01);
+        
+        for (int i = 0; i < p.getNumRows(); i++) {
+            if (p.getRow(i).getData(0).hasVolume())
+                printf ("%i vol=%i\n", i, p.getRow(i).getData(0).getVolume());
+            
+            if (p.getRow(i).getData(0).hasVolume())
+                printf ("%i fx=%i\n", i, p.getRow(i).getData(0).getEffectCmd());        
+        }
         
         delete f;
         

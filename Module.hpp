@@ -37,12 +37,6 @@ namespace vmp
     class Module 
     {
     private:
-        
-        typedef struct {
-            u8 num_rows;
-            PatternData* data;
-        } pattern_t;
-        
         u8 numTracks;
         u8 numPatterns;
         u8 numOrders;
@@ -56,13 +50,26 @@ namespace vmp
         char* songTitle = 0;
         u8* initialPanning = 0;
         
+    protected:
+        void allocData();
+        
     public:
+        typedef struct {
+            PatternData* data;
+        } pattern_row_t;
+        
+        typedef struct {
+            u8 num_rows;
+            pattern_row_t* rows;
+        } pattern_t;
+        
         Module();
         virtual ~Module() {};
         
-        virtual bool loadCheck(Io * io) = 0;
-        virtual void load(Io * io) = 0;
+        virtual bool loadCheck(Io* io) = 0;
+        virtual void load(Io* io) = 0;
         
+        pattern_t* getPattern(u8 pattern_no);
         PatternData* getData(u8 pattern_no, u8 row_no, u8 track_no);
     };
 }
