@@ -23,6 +23,7 @@ namespace vmp
         , sampleStep(0)
         , effectStorage(128)
         , patternLoopPosition(0)
+        , volume(64)
     {}
     
     void Track::setData(PatternData* data) { patternData = data; }
@@ -68,6 +69,9 @@ namespace vmp
 
     u8 Track::getPatternLoopCount() { return patternLoopCount; }
     void Track::setPatternLoopCount(u8 loop_count) { patternLoopCount = loop_count; }
+    
+    u8 Track::getSampleDelay() { return sampleDelay; }
+    void Track::setSampleDelay(u8 delay) { sampleDelay = delay; }
     
     precision_t Track::getSamplePos() { return samplePos; }
     void Track::setSamplePos(precision_t sample_pos) { samplePos = sample_pos; }

@@ -70,6 +70,10 @@ namespace vmp
     {
         return patternDelayActive;
     }
+    void Player::setPatternDelay(u8 delay)
+    {
+        patternDelay = delay;
+    }
     
     u32 Player::getSampleRate()
     {
@@ -178,7 +182,7 @@ namespace vmp
                 //    (player->row_callback)(player, player->callback_user_ptr);
 
                 // fetch new pattern data from module
-                fprintf(stderr, "%02x:%02x|", currentPattern, currentRow);
+                fprintf(stderr, "%02d:%02d:%02d|", currentOrder, currentPattern, currentRow);
                 for (i = 0; i < module->getNumTracks(); i++) {
                     tracks[i].setData(&module->getData(currentPattern, currentRow, i));
                     
@@ -196,9 +200,9 @@ namespace vmp
 
             }
             
-            for (Track& track : tracks) {
-                if (track.getData()->hasEffectCmd())
-                    effects->doEffect(track.getData()->getEffectCmd(), *this, track);
+            for (i = 0; i < module->getNumTracks(); i++) {
+                if (tracks[i].getData()->hasEffectCmd())
+                    effects->doEffect(tracks[i].getData()->getEffectCmd(), *this, tracks[i]);
             }
             
 
@@ -263,13 +267,8 @@ namespace vmp
         
     }
     
-    void Player::setModule(Module* m) 
+    void Player::reset()
     {
-        int i;
-        
-        module = m;
-        tracks = vector<Track>(module->getNumTracks());
-        
         speed = module->getInitialSpeed();
         bpm = module->getInitialBpm();
         calcTickDuration();
@@ -286,6 +285,18 @@ namespace vmp
         
         patternDelay = 0;
         patternDelayActive = false;
+        haveData = true;
+        
+    }
+    
+    void Player::setModule(Module* m) 
+    {
+        int i;
+        
+        module = m;
+        tracks = vector<Track>(module->getNumTracks());
+        
+        reset();
                 
         if (effects) {
             delete effects;
@@ -297,11 +308,9 @@ namespace vmp
                 break;
         }
         
-        haveData = true;
         i = 0;
-        for(Track& track: tracks) {
-            track.setPanning(module->getInitialPanning(i));
-            i++;
+        for(i = 0; i < module->getNumTracks(); i++) {
+            tracks[i].setPanning(module->getInitialPanning(i));
         }
     }
     
@@ -354,11 +363,18 @@ namespace vmp
         
         Sample& sample = module->getSample(track.getInstrument());
 
+        precision_t saved_sample_pos = track.getSamplePos();
         // maintain looping
         if (sample.getLoopEnabled()) {
-            while (track.getSamplePos() >= static_cast<precision_t>(sample.getLoopEnd())) {
+            while (static_cast<u32>(track.getSamplePos()) > static_cast<precision_t>(sample.getLoopEnd())) {
                 track.setSamplePos(track.getSamplePos() - static_cast<precision_t>(sample.getLoopLength()));
             }
+            if (track.getSamplePos() < 0)
+                *((int*)0) = 0;
+            
+            if (static_cast<u32>(track.getSamplePos()) > sample.getLength())
+                *((int*)0) = 0;
+                
         } else {
             if (track.getSamplePos() >= static_cast<precision_t>(sample.getLength()))
                 return SAMPLE_T_ZERO;

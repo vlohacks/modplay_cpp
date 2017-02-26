@@ -43,7 +43,6 @@ namespace vmp
         string filename;
         std::thread* workerThread;
         FILE *outputFile;
-        volatile bool running;
         void worker();
         
     public:

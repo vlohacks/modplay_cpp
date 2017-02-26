@@ -45,8 +45,9 @@ namespace vmp
     }
    
     OutputRaw::OutputRaw(Player* p)
+        : Output(p)
     {
-        player = p;
+        //player = p;
     }
     
     OutputRaw::~OutputRaw()

@@ -72,7 +72,11 @@ namespace vmp
         static void setTremoloWaveform(Player& player, Track& track);
         static void ePanning(Player& player, Track& track);
         static void retriggerSample(Player& player, Track& track);
-
+        static void fineVolumeUp(Player& player, Track& track);
+        static void fineVolumeDown(Player& player, Track& track);
+        static void noteCut(Player& player, Track& track);
+        static void delaySample(Player& player, Track& track);
+        static void patternDelay(Player& player, Track& track);
     };
 }
 

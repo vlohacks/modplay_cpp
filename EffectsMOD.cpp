@@ -85,8 +85,12 @@ namespace vmp
 
         // special behaviour for sample / note delay
         if ((data->getEffectCmd() == 0xe) && (data->getEffectValueUpper() == 0xd)) {
-            track.setDestPeriod(DefsMOD::periods[data->getNote()]);
-            track.setDestInstrument(data->getInstrument());
+            if (data->hasNote())
+                track.setDestPeriod(DefsMOD::periods[data->getNote()]);
+            
+            if (data->hasInstrument())
+                track.setDestInstrument(data->getInstrument());
+
             //player->channels[channel_num].period_index = data->period_index;
             return;
         }
@@ -123,10 +127,10 @@ namespace vmp
                     //player->channels[channel_num].period_index = data->period_index;
                     track.setSamplePos(0);
                     //track.setPendingFrequencyUpdate(true);
-                    setTrackFrequency(player, track, track.getPeriod());
                 }
             }
-        } 
+        }
+        setTrackFrequency(player, track, track.getPeriod());
 
     }
     
@@ -528,12 +532,12 @@ namespace vmp
             case 0x6: patternLoop(player, track); break;
             case 0x7: setTremoloWaveform(player, track); break;
             case 0x8: ePanning(player, track); break;
-            case 0x9: retriggerSample(player, track); break;/*
-            case 0xa: effects_mod_ea_finevolumeup(player, track); break;
-            case 0xb: effects_mod_eb_finevolumedown(player, track); break;
-            case 0xc: effects_mod_ec_notecut(player, track); break;
-            case 0xd: effects_mod_ed_delaysample(player, track); break;
-            case 0xe: effects_mod_ee_patterndelay(player, track); break;*/
+            case 0x9: retriggerSample(player, track); break;
+            case 0xa: fineVolumeUp(player, track); break;
+            case 0xb: fineVolumeDown(player, track); break;
+            case 0xc: noteCut(player, track); break;
+            case 0xd: delaySample(player, track); break;
+            case 0xe: patternDelay(player, track); break;
             default:  Effects::unimplementedEffect(player, track); break;
         }
     }
@@ -610,59 +614,66 @@ namespace vmp
         if ((player.getCurrentTick() % data->getEffectValueLower()) == 0)
             track.setSamplePos(0);
     }
-/*
-    static void fineVolumeUp(Player* player, Track* track)
+
+    void EffectsMOD::fineVolumeUp(Player& player, Track& track)
     {
-        if (player->current_tick == 0) {
-            player->channels[channel].volume += (player->channels[channel].effect_value & 0xf);
-            if (player->channels[channel].volume > 0x40)
-                player->channels[channel].volume = 0x40;
+        PatternData* data = track.getData();
+        int tmp; 
+        if (player.getCurrentTick() == 0) {
+            tmp = track.getVolume() + data->getEffectValueLower();
+            if (tmp > 64)
+                tmp = 64;
+            track.setVolume(tmp);
         }
     }
 
-    static void fineVolumeDown(Player* player, Track* track)
+    void EffectsMOD::fineVolumeDown(Player& player, Track& track)
     {
-        if (player->current_tick == 0) {
-            int tmp = player->channels[channel].volume - (player->channels[channel].effect_value & 0xf);
+        PatternData* data = track.getData();
+        int tmp; 
+        if (player.getCurrentTick() == 0) {
+            tmp = track.getVolume() - data->getEffectValueLower();
             if (tmp < 0)
                 tmp = 0;
-            player->channels[channel].volume = tmp;
-        }    
+            track.setVolume(tmp);
+        }
     }
 
-    static void noteCut(Player* player, Track* track)
+    void EffectsMOD::noteCut(Player& player, Track& track)
     {
-        if ((player->channels[channel].effect_value & 0x0f) <= player->current_tick)
-            player->channels[channel].volume = 0;
+        if (track.getData()->getEffectValueLower() <= player.getCurrentTick())
+            track.setVolume(0);
     }
 
-    static void delaySample(Player* player, Track* track)
+    void EffectsMOD::delaySample(Player& player, Track& track)
     {
-        if (player->current_tick == 0)
-            player->channels[channel].sample_delay = 0;
+        PatternData* data = track.getData();
+        
+        if (player.getCurrentTick() == 0)
+            track.setSampleDelay(0);
 
-        if (player->channels[channel].sample_delay == (player->channels[channel].effect_value & 0xf)) {
-            if (player->channels[channel].dest_sample_num > 0) {
-                player->channels[channel].sample_num = player->channels[channel].dest_sample_num;
-                player->channels[channel].volume = player->module->samples[player->channels[channel].sample_num - 1].header.volume;
+        if (track.getSampleDelay() == data->getEffectValueLower()) {
+            if (data->hasInstrument()) {
+                track.setInstrument(track.getDestInstrument());
+                track.setVolume(player.getModule()->getSample(track.getInstrument()).getDefaultVolume());
             }
 
-            if (player->channels[channel].dest_period > 0) {
-                player->channels[channel].period = player->channels[channel].dest_period;
-                player->channels[channel].sample_pos = 0;
-                player_channel_set_frequency(player, player->channels[channel].period, channel);
+            if (data->hasNote()) {
+                track.setPeriod(track.getDestPeriod());
+                track.setSamplePos(0);
+                setTrackFrequency(player, track, track.getPeriod());
             }            
         }
 
-        player->channels[channel].sample_delay++; // = (player->channels[channel].current_effect_value & 0xf);
+        track.setSampleDelay(track.getSampleDelay() + 1);
     }
 
-    static void patternDelay(Player* player, Track* track)
+    void EffectsMOD::patternDelay(Player& player, Track& track)
     {
-        if (!player->pattern_delay_active)
-            player->pattern_delay = (player->channels[channel].effect_value & 0x0f);
+        if (!player.getPatternDelayActive())
+            player.setPatternDelay(track.getData()->getEffectValueLower());
     }
-  */  
+  
     
     void EffectsMOD::setSpeed(Player& player, Track& track)
     {

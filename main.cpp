@@ -27,12 +27,18 @@
 #include "Player.hpp"
 #include "OutputRaw.hpp"
 #include "OutputAlsa.hpp"
+#include "IoMem.hpp"
 #include <iostream>
+
+#include <QApplication>
+#include "dreamit.h"
+#include "Dos.hpp"
 
 int main(int argc, char** argv) 
 {
-
+        QApplication app(argc, argv);
 	vmp::IoFile f(argv[1], "rb");
+        //vmp::IoMem f(dreamit, sizeof(dreamit));
       
         f.seek(0, vmp::Io::IO_SEEK_SET);
         
@@ -48,15 +54,27 @@ int main(int argc, char** argv)
         //vmp::OutputRaw o(&player);
         vmp::OutputAlsa o(oo, &player);
         
-        for (int i = 0; i < mod.getNumSamples(); i++)
-            printf("%d FT: %d\n", i, mod.getSample(i).getFinetune());
         
-        //o.setFilename("-");
+        player.setLoop(true);
+        
         o.start();
-        while (player.hasData()) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        }
-        o.stop();
         
-	return 0;
+        
+        vmp::Dos window;
+        window.setOutput(&o);
+        window.setWindowTitle("DREAMIT Operation System PRO");
+        window.resize(640, 64);
+        
+	window.show();
+	
+
+        
+	int r =  app.exec();
+        //o.setFilename("-");
+        if (o.isRunning())
+            o.stop();
+        
+	return r;
 }
+
+

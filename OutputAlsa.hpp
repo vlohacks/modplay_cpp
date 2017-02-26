@@ -39,7 +39,6 @@ namespace vmp
         vector<s16> outputBuffer;
         int outputBufferPos;
         std::thread* workerThread;
-        volatile bool running;
         void worker();
         const OutputOptionsAlsa outputOptions;
         snd_pcm_t* playback_handle;

@@ -40,6 +40,8 @@ namespace vmp
         Player(u32 sample_rate);
         ~Player();
         
+        void reset();
+        
         void setModule(Module* m);
         Module* getModule();
         
@@ -54,6 +56,7 @@ namespace vmp
         void setLoop(bool val);
         
         bool getPatternDelayActive();
+        void setPatternDelay(u8 delay);
         u32 getSampleRate();
         
         typedef enum {
@@ -92,7 +95,7 @@ namespace vmp
         
         precision_t tickPos;                                     // current position in tick (internal)
         precision_t tickDuration;                                // duration of one tick (gets calculated when set speed effect occurs)  
-        int patternDelay;
+        u8 patternDelay;
         bool patternDelayActive;
         bool doBreak;
         bool haveData;

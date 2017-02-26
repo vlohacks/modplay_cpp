@@ -21,8 +21,9 @@ namespace vmp
     
     OutputAlsa::OutputAlsa(const OutputOptionsAlsa& options, Player* p)
         : outputOptions(options)
+        , Output(p)
     {
-        player = p;
+        //player = p;
     }
     
     
@@ -77,7 +78,7 @@ namespace vmp
                     snd_strerror(err));
             exit(1);
         }
-        fprintf(stderr, "rate = %i\n", rate);
+        //fprintf(stderr, "rate = %i\n", rate);
 
         if ((err = snd_pcm_hw_params_set_channels(playback_handle, hw_params, 2)) < 0) {
             fprintf(stderr, "cannot set channel count (%s)\n",
@@ -92,7 +93,7 @@ namespace vmp
 
             exit(1);
         }    
-        fprintf(stderr, "periods = %i\n", periods);
+        //fprintf(stderr, "periods = %i\n", periods);
 
         if (snd_pcm_hw_params_set_buffer_size(playback_handle, hw_params, (outputOptions.outputBufferSize * periods) >> 2) < 0) {
           fprintf(stderr, "Error setting buffersize.\n");

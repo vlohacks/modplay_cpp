@@ -34,6 +34,7 @@ namespace vmp
     {
     protected:
         Player* player;
+        volatile bool running;
         
     public:
         Output();
@@ -41,8 +42,10 @@ namespace vmp
         virtual ~Output() {};
                 
         void setPlayer(Player* p);
+        Player* getPlayer();
         virtual void start() = 0;
         virtual void stop() = 0;
+        bool isRunning();
     };
     
     class OutputOptions

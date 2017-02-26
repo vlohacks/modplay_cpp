@@ -24,12 +24,24 @@ namespace vmp
     {}
     
     Output::Output(Player* p)
+        : running(false)
+        , player(p)
     {
-        player = p;
+        //player = p;
     }
     
     void Output::setPlayer(Player* p)
     {
         player = p;
+    }
+    
+    Player* Output::getPlayer()
+    {
+        return player;
+    }
+    
+    bool Output::isRunning() 
+    {
+        return running;
     }
 }

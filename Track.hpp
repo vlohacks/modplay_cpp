@@ -60,6 +60,7 @@ namespace vmp
         u8 destInstrument;
         u8 patternLoopPosition;
         u8 patternLoopCount;
+        u8 sampleDelay;
         
         precision_t samplePos;
         precision_t sampleStep;
@@ -110,6 +111,8 @@ namespace vmp
         void setPatternLoopPosition(u8 loop_position);
         u8 getPatternLoopCount();
         void setPatternLoopCount(u8 loop_count);
+        u8 getSampleDelay();
+        void setSampleDelay(u8 delay);
         
         bool getPendingFrequencyUpdate();
         void setPendingFrequencyUpdate(bool v);

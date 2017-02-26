@@ -246,7 +246,7 @@ namespace vmp
         if ((tmpFxCmd > 0) || ((tmpFxCmd == 0) && tmpFxVal > 0))
             data.setEffectCmd(tmpFxCmd);
         
-        if (tmpFxVal)
+        if (data.hasEffectCmd())
             data.setEffectValue(tmpFxVal);
     }
 

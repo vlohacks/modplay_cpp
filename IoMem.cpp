@@ -36,7 +36,7 @@ namespace vmp
         int i;
         char* ptr = static_cast<char*>(sptr);
         for (i = 0; i < n; i++) {
-            if (position + size < memSize) {
+            if (position + size <= memSize) {
                 memcpy(ptr, static_cast<void*>(static_cast<char*>(memPtr) + position), size);
                 position += size;
                 ptr += size;
@@ -51,7 +51,7 @@ namespace vmp
         int i;
         char* ptr = static_cast<char*>(sptr);
         for (i = 0; i < n; i++) {
-            if (position + size < memSize) {
+            if (position + size <= memSize) {
                 memcpy(static_cast<void*>(static_cast<char*>(memPtr) + position), ptr, size);
                 position += size;
                 ptr += size;
