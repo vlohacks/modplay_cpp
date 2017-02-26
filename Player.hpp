@@ -26,20 +26,85 @@
 #define	PLAYER_HPP
 
 #include "Module.hpp"
-#include "mixing.hpp"
+#include "Track.hpp"
+#include "SampleConv.hpp"
+#include "Effects.hpp"
+//#include "EffectsMOD.hpp"
 
 namespace vmp 
 {
     class Player 
     {
     public:
-        Player();
+        Player(Module* m, u32 sample_rate);
+        Player(u32 sample_rate);
         ~Player();
         
-        void setModule(Module* module);
-        void read(sample_t& mix_l, sample_t& mix_r);
+        void setModule(Module* m);
+        Module* getModule();
+        
+        void readPcm(sample_t& mix_l, sample_t& mix_r);
+        bool hasData();
+        
+        u8 getCurrentTick();
+        u8 getCurrentOrder();
+        u8 getCurrentRow();
+        
+        bool getLoop();
+        void setLoop(bool val);
+        
+        bool getPatternDelayActive();
+        u32 getSampleRate();
+        
+        typedef enum {
+            RESAMPLING_NONE,
+            RESAMPLING_LINEAR
+        } resampling_t;
+        
+        void setBpm(u8 val);
+        u8 getBpm();
+        
+        void setSpeed(u8 val);
+        u8 getSpeed();
+        
+        void calcTickDuration();
+        
+        void setDoBreak();
+        void setNextRow(u8 row);
+        void setNextOrder(u8 order);
         
     private:
+        Module* module;
+        Effects* effects;
+        vector<Track> tracks;
+        u32 sampleRate;
+        resampling_t resampling;
+        
+        // internal status variables
+        u8 speed;
+        u8 bpm;
+        u8 currentTick;
+        u8 currentRow;
+        u8 currentPattern;
+        u8 currentOrder;
+        u8 nextOrder;
+        u8 nextRow;
+        
+        precision_t tickPos;                                     // current position in tick (internal)
+        precision_t tickDuration;                                // duration of one tick (gets calculated when set speed effect occurs)  
+        int patternDelay;
+        bool patternDelayActive;
+        bool doBreak;
+        bool haveData;
+        bool loopModule;
+        
+        
+        precision_t calcTickDuration(const uint16_t bpm, const uint32_t sample_rate);
+        
+        //void setTrackFrequency(Track& track);
+        
+        sample_mac_t fetchSample(Track& track);
+        
         
         
     };

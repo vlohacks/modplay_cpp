@@ -15,7 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "IoMem.hpp"
-#include "VmpException.hpp";
+#include "Exception.hpp"
+#include <cstring>
 
 namespace vmp
 {
@@ -26,38 +27,38 @@ namespace vmp
         position = 0;
     }
     
-    IoFile::~IoFile() 
+    IoMem::~IoMem() 
     {
     }
     
-    void IoMem::read(void* ptr, size_t size, size_t n)
+    void IoMem::read(void* sptr, size_t size, size_t n)
     {
         int i;
+        char* ptr = static_cast<char*>(sptr);
         for (i = 0; i < n; i++) {
             if (position + size < memSize) {
-                memcpy(ptr, (void *)(memPtr + position), size);
+                memcpy(ptr, static_cast<void*>(static_cast<char*>(memPtr) + position), size);
                 position += size;
                 ptr += size;
             } else {
-                throw VmpException();
+                throw Exception();
             }
         }
-        return i;
     }
 
-    void IoMem::write(const void * ptr, size_t size, size_t n)
+    void IoMem::write(void* sptr, size_t size, size_t n)
     {
         int i;
+        char* ptr = static_cast<char*>(sptr);
         for (i = 0; i < n; i++) {
             if (position + size < memSize) {
-                memcpy((void *)(memPtr + position), ptr, size);
+                memcpy(static_cast<void*>(static_cast<char*>(memPtr) + position), ptr, size);
                 position += size;
                 ptr += size;
             } else {
-                throw VmpException();
+                throw Exception();
             }
         }
-        return i;
     }
 
     size_t IoMem::tell()

@@ -38,11 +38,15 @@
 
 /* this defines how inter-sample calculations are done internally
  * (TODO not yet implemented)
- * SAMPLING_FLOAT: uses float
+ * PRECISION_FLOAT: uses float
  * SAMPLING_U24_8: uses 24:8 bit fixed point math (for systems which love 
  *      integer, but hate float
  */
-#define SAMPLING_FLOAT
+#define PRECISION_FLOAT
+
+/* Determine if the target system is little or big endian
+ */
+#define VMP_LITTLE_ENDIAN //(((union { unsigned x; unsigned char c; }){1}).c)
 
 
 #endif /* CONFIG_HPP */

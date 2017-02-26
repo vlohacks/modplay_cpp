@@ -16,7 +16,7 @@
  */
 
 #include "IoFile.hpp"
-#include "VmpException.hpp"
+#include "Exception.hpp"
 
 namespace vmp 
 {
@@ -24,7 +24,7 @@ namespace vmp
     {
         f = fopen(filename, mode);
         if (f == 0) {
-            throw VmpException();
+            throw Exception();
         }
     }
     
@@ -47,14 +47,14 @@ namespace vmp
     void IoFile::read(void* ptr, std::size_t size, std::size_t n)
     {
         if (fread(ptr, size, n, f) != n) {
-            throw VmpException();
+            throw Exception();
         }
     }
     
     void IoFile::write(void* ptr, size_t size, size_t n)
     {
         if (fwrite(ptr, size, n, f) != n) {
-            throw VmpException();
+            throw Exception();
         }
     }
     

@@ -28,6 +28,8 @@
 #define MODULEMOD_HPP
 
 #include "Module.hpp"
+#include "Sample.hpp"
+#include "DefsMOD.hpp"
 
 namespace vmp 
 {
@@ -38,11 +40,11 @@ namespace vmp
         typedef struct {
             u32 signature;
             u8 numTracks;
-            char * description;
+            const char* description;
         } modtype_t;
         
-        const int numModTypes = 8;
-        const modtype_t modTypes[] = {
+        static const int numModTypes = 8;
+        static constexpr modtype_t modTypes[numModTypes] = {
             { 0x2e4b2e4d, 4, "Protracker module" },                                // M.K.
             { 0x214b214d, 4, "Protracker module with more than 64 patterns" },     // M!K!
             { 0x34544c46, 4, "Startrekker, 4 channels" },                          // FLT4
@@ -53,13 +55,17 @@ namespace vmp
             { 0x4e484338, 8, "Extended protracker, 8 channels" }                   // 8CHN
         };        
         
+        void loadPatternData(PatternData& data, Io& io);
+        void loadSampleHeader(Sample& sample, Io& io);
+        void loadSampleData(Sample& sample, Io& io);
+        s16 lookupPeriodIndex(const uint16_t period);
         
     public:
+       
         ModuleMOD();
-        ~ModuleMOD();
         
-        bool loadCheck(Io * io);
-        void load(Io * io);       
+        bool loadCheck(Io& io);
+        void load(Io& io);       
     };
 }
 

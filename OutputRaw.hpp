@@ -1,4 +1,9 @@
 /*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+/*
  * Copyright 2015 Florian Feucht
  *
  * This program is free software: you can redistribute it and/or modify
@@ -16,40 +21,40 @@
  */
 
 /* 
- * File:   IoMem.hpp
+ * File:   OutputRaw.hpp
  * Author: vlo
- * 
- * Memory input/output 
  *
- * Created on 12. November 2015, 18:44
+ * Created on 21. November 2016, 18:38
  */
 
-#ifndef IOMEM_HPP
-#define IOMEM_HPP
+#ifndef OUTPUTRAW_HPP
+#define OUTPUTRAW_HPP
 
-#include "Io.hpp"
+#include "Output.hpp"
+#include "Types.hpp"
+#include <thread>
+#include <cstdio>
 
-namespace vmp 
+namespace vmp
 {
-    class IoMem : public Io
+    class OutputRaw : public Output
     {
     private:
-        void* memPtr;
-        size_t memSize;
-        size_t position;
+        string filename;
+        std::thread* workerThread;
+        FILE *outputFile;
+        volatile bool running;
+        void worker();
         
     public:
+        OutputRaw(Player* p);
+        ~OutputRaw();
         
-        IoMem(void* ptr, size_t size);
-        ~IoMem();
-        
-        void seek(size_t n, whence_t whence) override;
-        void read(void* ptr, size_t size, size_t n) override;
-        void write(void* ptr, size_t size, size_t n) override;
-        size_t tell() override;
-        bool eof() override;
+        void setFilename(string fn);
+        void start() override;
+        void stop() override;
     };
 }
 
-#endif /* IO_MEM_HPP */
+#endif /* OUTPUTRAW_HPP */
 

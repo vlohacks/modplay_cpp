@@ -15,30 +15,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PatternData.hpp"
-#include "PatternRow.hpp"
+#include "Output.hpp"
 
-namespace vmp {
-    PatternRow::PatternRow(const u8 num_tracks)
+namespace vmp 
+{
+
+    Output::Output()
+    {}
+    
+    Output::Output(Player* p)
     {
-        init(num_tracks);
+        player = p;
     }
     
-    PatternRow::PatternRow() {}
-
-    void PatternRow::init(const u8 num_tracks)
+    void Output::setPlayer(Player* p)
     {
-        data = new PatternData[num_tracks];
-    }
-
-    
-    PatternRow::~PatternRow()
-    {
-        delete[] data;
-    }
-    
-    PatternData& PatternRow::getData(const u8 track_no)
-    {
-        return data[track_no];
+        player = p;
     }
 }

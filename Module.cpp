@@ -16,25 +16,39 @@
  */
 
 #include "Module.hpp"
+#include "IoFile.hpp"
 
 namespace vmp 
 {
-    Module::Module() {}
-    
-    Module::~Module() {
-        if (patterns)
-            delete[] patterns;
+    Module::Module() {}    
+    Module::~Module() {}
+      
+    Pattern& Module::getPattern(u8 pattern_no) 
+    {
+        return patterns[pattern_no];
     }
     
-    void Module::allocData() {
-        if (numPatterns == 0) {
-            // TODO throw exception...
-            
-        } else {
-            if (patterns)
-                delete[] patterns;
-                
-            patterns = new pattern_t[numPatterns];
-        }
+    PatternData& Module::getData(u8 pattern_no, u8 row_no, u8 track_no)
+    {
+        return patterns[pattern_no].getRow(row_no)[track_no];
     }
+    
+    u8 Module::getNumPatterns() { return numPatterns; }
+    u8 Module::getNumTracks()   { return numTracks; }
+    u8 Module::getNumOrders()   { return numOrders; }
+    u8 Module::getNumSamples()  { return numSamples; }
+    Sample& Module::getSample(u8 sample_no) { return samples[sample_no]; }
+    
+    u8 Module::getPatternForOrder(u8 order_no)  
+    {
+        return orders[order_no];
+    }
+    
+    Module::module_type_t Module::getModuleType() {
+        return moduleType;
+    }
+    
+    u8 Module::getInitialSpeed() { return initialSpeed; }
+    u8 Module::getInitialBpm() { return initialBpm; }
+    u8 Module::getInitialPanning(u8 track_no) { return initialPanning[track_no]; }
 }

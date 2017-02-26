@@ -16,26 +16,41 @@
  */
 
 /* 
- * File:   VMPException.hpp
+ * File:   Output.hpp
  * Author: vlo
  *
- * Created on 12. November 2015, 18:51
+ * Created on 7. April 2016, 01:01
  */
 
-#ifndef VMPEXCEPTION_HPP
-#define VMPEXCEPTION_HPP
+#ifndef OUTPUT_HPP
+#define OUTPUT_HPP
 
-#include <exception>
+#include "Player.hpp"
+#include "SampleConv.hpp"
 
-namespace vmp 
+namespace vmp
 {
-    class VmpException : public std::exception
+    class Output
     {
-        virtual const char* what() const throw() {
-            return "fuck";
-        }
+    protected:
+        Player* player;
+        
+    public:
+        Output();
+        Output(Player* p);
+        virtual ~Output() {};
+                
+        void setPlayer(Player* p);
+        virtual void start() = 0;
+        virtual void stop() = 0;
+    };
+    
+    class OutputOptions
+    {
+    public:
+        virtual ~OutputOptions() {};
     };
 }
 
-#endif /* VMPEXCEPTION_HPP */
+#endif /* OUTPUT_HPP */
 

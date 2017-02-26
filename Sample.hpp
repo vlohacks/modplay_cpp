@@ -33,35 +33,67 @@
 #define SAMPLE_HPP
 
 #include "Types.hpp"
+#include "SampleConv.hpp"
+#include "Io.hpp"
 
 namespace vmp
 {
     class Sample
     {
     private:
-        u16     length;
-        bool    loopEnabed;
-        u16     loopStart;
-        u16     loopEnd;
+        u32     length;
+        bool    loopEnabled;
+        u32     loopStart;
+        u32     loopEnd;
+        u8      defaultVolume;
         u32     middleCSpeed;
-        char*   name;
+        s8      finetune;
+        string  name;
+        bool    haveData;
+        
+        vector<sample_t>    data;
         
     public:
+        typedef enum {
+            PCM_U8,
+            PCM_S8,
+            PCM_U16_LE,
+            PCM_S16_LE,
+            PCM_U16_BE,
+            PCM_S16_BE
+        } sample_data_t;
+        
         Sample();
+        Sample(const void* src_data, sample_data_t src_format, u32 count);
+        Sample(Io& io, sample_data_t src_format, u32 count);
         ~Sample();
         
-        void    setLoop(bool enabled, u16 start, u16 end);
-        void    setName(char* name);
+        void    setName(string name);
+        void    setLoop(bool enabled, u32 start, u32 end);
+        void    setMiddleCSpeed(u32 val);
+        void    setFinetune(s8 val);
+        void    setLength(u32 val);
+        void    setDefaultVolume(u8 val);
         
-        void    loadPcmU8(u8* data);
-        void    loadPcmS8(s8* data);
-        void    loadPcmU16(u16* data);
-        void    loadPcmS16(s16* data);
+
+        void    loadPtr(const void* src_data, sample_data_t src_format, u32 count);
+        void    loadIo (Io& io, sample_data_t src_format, u32 count);
+
+        void    loadPtr(const void* src_data, sample_data_t src_format);
+        void    loadIo (Io& io, sample_data_t src_format);
+
         
-        u16     getLoopStart();
-        u16     getLoopEnd();
+        bool    getLoopEnabled();
+        u32     getLoopStart();
+        u32     getLoopEnd();
+        u32     getLoopLength();
+        u32     getLength();
+        u8      getDefaultVolume();
         u32     getMiddleCSpeed();
-        char*   getName();
+        s8      getFinetune();
+        const string& getName();
+        sample_t getData(u32 index);
+        bool    hasData();
     };
 }
 

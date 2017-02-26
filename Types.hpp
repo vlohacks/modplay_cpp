@@ -28,10 +28,13 @@
 #define TYPES_HPP
 
 #include <cstdint>
-
+#include <vector>
+#include <string>
 #include "Config.hpp"
 
 namespace vmp {
+    
+    /* integer scalars */
     typedef std::size_t size_t;
     typedef uint32_t    u32;
     typedef uint16_t    u16;
@@ -39,6 +42,16 @@ namespace vmp {
     typedef int32_t     s32;
     typedef int16_t     s16;
     typedef int8_t      s8;
+    
+    /* containers */
+    template<typename T> using vector = std::vector<T>;
+    //template using string = std::string;
+    typedef std::string string;
+    
+#ifdef PRECISION_FLOAT
+    typedef float       precision_t;
+#endif
+    
 }
 
 

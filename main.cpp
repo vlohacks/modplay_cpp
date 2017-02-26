@@ -18,31 +18,45 @@
 #include "Io.hpp"
 #include "IoFile.hpp"
 
+#include <thread>
+#include <chrono>
+
 #include "Pattern.hpp"
+#include "ModuleMOD.hpp"
+#include "ModuleUtils.hpp"
+#include "Player.hpp"
+#include "OutputRaw.hpp"
+#include "OutputAlsa.hpp"
+#include <iostream>
 
 int main(int argc, char** argv) 
 {
 
-	vmp::Io* f = new vmp::IoFile("test22", "rb");
-
-	for (int i = 0; i < 10; i++) {
-		printf("%x\n", f->readU8());
-	}   
+	vmp::IoFile f(argv[1], "rb");
+      
+        f.seek(0, vmp::Io::IO_SEEK_SET);
         
-        vmp::Pattern p(64, 4);
+        vmp::ModuleMOD mod;
+        mod.load(f);
+        //vmp::ModuleUtils::dumpModule(mod);
         
-        p.getRow(0).getData(0).setVolume(32);
-        p.getRow(0).getData(0).setEffectCmd(0x01);
+        vmp::Player player(44100);
+        player.setModule(&mod);
         
-        for (int i = 0; i < p.getNumRows(); i++) {
-            if (p.getRow(i).getData(0).hasVolume())
-                printf ("%i vol=%i\n", i, p.getRow(i).getData(0).getVolume());
-            
-            if (p.getRow(i).getData(0).hasVolume())
-                printf ("%i fx=%i\n", i, p.getRow(i).getData(0).getEffectCmd());        
+        vmp::OutputOptionsAlsa oo;
+        
+        //vmp::OutputRaw o(&player);
+        vmp::OutputAlsa o(oo, &player);
+        
+        for (int i = 0; i < mod.getNumSamples(); i++)
+            printf("%d FT: %d\n", i, mod.getSample(i).getFinetune());
+        
+        //o.setFilename("-");
+        o.start();
+        while (player.hasData()) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
-        
-        delete f;
+        o.stop();
         
 	return 0;
 }

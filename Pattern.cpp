@@ -16,31 +16,28 @@
  */
 
 #include "Pattern.hpp"
-#include "PatternRow.hpp"
 
 namespace vmp
 {
-    Pattern::Pattern(const u8 num_rows, const u8 num_tracks)
-    {
-        int i;
-        numRows = num_rows;
-        rows = new PatternRow[numRows];
-        for (i = 0; i < numRows; i++)
-            rows[i].init(num_tracks);
-    }
+    Pattern::Pattern(const u8 num_rows, const u8 num_tracks) 
+        : patternData(num_rows, vector<PatternData>(num_tracks))
+    {}
+    
+    /*
+    Pattern::Pattern() 
+    {}
+    */
     
     Pattern::~Pattern()
-    {
-        delete[] rows;
-    }
+    {}
     
-    PatternRow& Pattern::getRow(const u8 row_no)
+    std::vector<PatternData>& Pattern::getRow(const u8 row_no)
     {
-        return rows[row_no];
+        return patternData[row_no];
     }
     
     u8 Pattern::getNumRows()
     {
-        return numRows;
+        return patternData.size();
     }
 }

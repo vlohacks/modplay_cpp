@@ -16,40 +16,26 @@
  */
 
 /* 
- * File:   IoMem.hpp
+ * File:   ModuleUtils.hpp
  * Author: vlo
- * 
- * Memory input/output 
  *
- * Created on 12. November 2015, 18:44
+ * Created on 6. April 2016, 23:58
  */
 
-#ifndef IOMEM_HPP
-#define IOMEM_HPP
+#ifndef MODULEUTILS_HPP
+#define MODULEUTILS_HPP
 
-#include "Io.hpp"
+#include "Module.hpp"
 
-namespace vmp 
+namespace vmp
 {
-    class IoMem : public Io
+    class ModuleUtils
     {
-    private:
-        void* memPtr;
-        size_t memSize;
-        size_t position;
-        
     public:
-        
-        IoMem(void* ptr, size_t size);
-        ~IoMem();
-        
-        void seek(size_t n, whence_t whence) override;
-        void read(void* ptr, size_t size, size_t n) override;
-        void write(void* ptr, size_t size, size_t n) override;
-        size_t tell() override;
-        bool eof() override;
+        static void dumpModule(Module& mod);
+        static void dumpData(PatternData& d);
     };
 }
 
-#endif /* IO_MEM_HPP */
+#endif /* MODULEUTILS_HPP */
 

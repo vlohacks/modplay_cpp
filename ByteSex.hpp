@@ -1,9 +1,4 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-/*
  * Copyright 2015 Florian Feucht
  *
  * This program is free software: you can redistribute it and/or modify
@@ -21,36 +16,45 @@
  */
 
 /* 
- * File:   Pattern.hpp
+ * File:   ByteSex.hpp
  * Author: vlo
+ * 
+ * Utility class for swapping endianess of integers. Many formats 
+ * use big endian byteorder - since the MOD format stems from Amiga which
+ * is a big endian machine
  *
- * Created on 8. Februar 2016, 19:59
+ * Created on 20. Februar 2016, 15:17
  */
 
-#ifndef PATTERN_HPP
-#define PATTERN_HPP
+#ifndef BYTESEX_HPP
+#define BYTESEX_HPP
 
-#include "PatternData.hpp"
 #include "Types.hpp"
+#include "Config.hpp"
 
-namespace vmp 
+namespace vmp
 {
-    class Pattern 
+    
+
+    class ByteSex 
     {
-    private:
-        u8 numRows;
-        //PatternRow* rows;
-        vector<vector<PatternData>> patternData;
-        
     public:
-        Pattern(const u8 num_rows, const u8 num_tracks);
-        Pattern();
-        ~Pattern();
+        static u16 swapEndianU16(u16 val);
+        static u32 swapEndianU32(u32 val);
         
-        vector<PatternData>& getRow(const u8 row_no);
-        u8 getNumRows();
+        static u16 fromU16le(u16 val);
+        static u16 fromU16be(u16 val);
+        static u32 fromU32le(u32 val);
+        static u32 fromU32be(u32 val);
+        
+        static u16 toU16le(u16 val);
+        static u16 toU16be(u16 val);
+        static u32 toU32le(u32 val);
+        static u32 toU32be(u32 val);
+
+        
     };
 }
 
-#endif /* PATTERN_HPP */
+#endif /* BYTESEX_HPP */
 

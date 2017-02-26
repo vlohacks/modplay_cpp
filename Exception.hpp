@@ -16,40 +16,35 @@
  */
 
 /* 
- * File:   IoMem.hpp
+ * File:   Exception.hpp
  * Author: vlo
- * 
- * Memory input/output 
  *
- * Created on 12. November 2015, 18:44
+ * Created on 12. November 2015, 18:51
  */
 
-#ifndef IOMEM_HPP
-#define IOMEM_HPP
-
-#include "Io.hpp"
+#ifndef EXCEPTION_HPP
+#define EXCEPTION_HPP
 
 namespace vmp 
 {
-    class IoMem : public Io
+    class Exception 
     {
-    private:
-        void* memPtr;
-        size_t memSize;
-        size_t position;
-        
-    public:
-        
-        IoMem(void* ptr, size_t size);
-        ~IoMem();
-        
-        void seek(size_t n, whence_t whence) override;
-        void read(void* ptr, size_t size, size_t n) override;
-        void write(void* ptr, size_t size, size_t n) override;
-        size_t tell() override;
-        bool eof() override;
+        virtual const char* what() const throw() {
+            return "fuck";
+        }
     };
+    
+    class IoException 
+    {
+        IoException(const char* zeuch) : filename(zeuch) {};
+        const char* filename;
+        virtual const char* what() const throw() {
+            return filename;
+        }
+    };
+    
+    
 }
 
-#endif /* IO_MEM_HPP */
+#endif /* EXCEPTION_HPP */
 

@@ -1,4 +1,9 @@
 /*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+/*
  * Copyright 2015 Florian Feucht
  *
  * This program is free software: you can redistribute it and/or modify
@@ -14,27 +19,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-#ifndef PATTERNROW_HPP
-#define PATTERNROW_HPP
-
-#include "PatternData.hpp"
+#include "Effects.hpp"
 
 namespace vmp 
 {
-    class PatternRow 
+    
+    void Effects::doEffect(int effect_num, Player& player, Track& track)
     {
-    private:
-        PatternData* data;
-    public:
-        PatternRow(const u8 num_tracks);
-        PatternRow();
-        void init(const u8 num_tracks);
-        ~PatternRow();
-        
-        PatternData& getData(const u8 track_no);
-    };
-} 
-
-#endif /* PATTERNROW_HPP */
-
+        effectMap[effect_num](player, track);
+    }
+    
+    
+    void Effects::unimplementedEffect(Player& player, Track& track)
+    {
+        // todo... cry
+        fprintf(stderr, "FUCKYOU!! UNIMPLEMENTED EFFECT!!!!! %01x\n",track.getData()->getEffectCmd());
+    }
+}

@@ -28,7 +28,9 @@
 #define	MODULE_HPP
 
 #include "Types.hpp"
+#include "Pattern.hpp"
 #include "PatternData.hpp"
+#include "Sample.hpp"
 
 #include "Io.hpp"
 
@@ -36,41 +38,53 @@ namespace vmp
 {
     class Module 
     {
-    private:
+    protected:
         u8 numTracks;
         u8 numPatterns;
         u8 numOrders;
         u8 numSamples;
+        u8 numInstruments;
         
         u8 initialSpeed;
         u8 initialBpm;
         
-        pattern_t* patterns = 0;
-        u8* orders = 0;
-        char* songTitle = 0;
-        u8* initialPanning = 0;
+        string songTitle;
+        vector<Pattern> patterns;
+        vector<Sample> samples;
+        vector<u8> orders;
+        vector<u8> initialPanning;
         
-    protected:
-        void allocData();
-        
+   
     public:
-        typedef struct {
-            PatternData* data;
-        } pattern_row_t;
-        
-        typedef struct {
-            u8 num_rows;
-            pattern_row_t* rows;
-        } pattern_t;
+        typedef enum  {
+            MODULE_TYPE_MOD,
+            MODULE_TYPE_S3M
+        } module_type_t;
         
         Module();
-        virtual ~Module() {};
+        ~Module();
         
-        virtual bool loadCheck(Io* io) = 0;
-        virtual void load(Io* io) = 0;
+        virtual bool loadCheck(Io& io) = 0;
+        virtual void load(Io& io) = 0;
         
-        pattern_t* getPattern(u8 pattern_no);
-        PatternData* getData(u8 pattern_no, u8 row_no, u8 track_no);
+        Pattern& getPattern(u8 pattern_no);
+        PatternData& getData(u8 pattern_no, u8 row_no, u8 track_no);
+        Sample& getSample(u8 sample_no);
+        
+        u8 getNumPatterns();
+        u8 getNumOrders();
+        u8 getNumTracks();
+        u8 getNumSamples();
+        u8 getPatternForOrder(u8 order_no);
+        module_type_t getModuleType();
+        
+        u8 getInitialSpeed();
+        u8 getInitialBpm();
+        u8 getInitialPanning(u8 track_no);
+
+    protected:
+        module_type_t moduleType;
+        
     };
 }
 

@@ -16,51 +16,82 @@
  */
 
 #include "Io.hpp"
+#include "ByteSex.hpp"
 
 namespace vmp 
 {
 
-    u8 Io::readU8() {
+    /* universal (unsigned) implementation - sign should not matter for pure I/O
+     * without arithmetic and I have koen bock, implementing the stuff for all
+     * types
+     */
+    u8 Io::read8() {
         u8 v;
         this->read(&v, sizeof(u8), 1);
         return v;
     }
 
-    u16 Io::readU16() {
+    u16 Io::read16le() {
         u16 v;
         this->read(&v, sizeof(u16), 1);
-        return v;
+        return ByteSex::fromU16le(v);
     }
 
-    u32 Io::readU32() {
+    u16 Io::read16be() {
+        u16 v;
+        this->read(&v, sizeof(u16), 1);
+        return ByteSex::fromU16be(v);
+    }
+
+    
+    u32 Io::read32le() {
         u32 v;
         this->read(&v, sizeof(u32), 1);
-        return v;
+        return ByteSex::fromU32le(v);
     }
+
+    u32 Io::read32be() {
+        u32 v;
+        this->read(&v, sizeof(u32), 1);
+        return ByteSex::fromU32be(v);
+    }
+
+    void Io::write8(u8 val)    { this->write(&val, sizeof(u8), 1); }
+    void Io::write16le(u16 val)  { this->write(&val, sizeof(u16), 1); }
+    void Io::write16be(u16 val)  { this->write(&val, sizeof(u16), 1); }    
+    void Io::write32le(u32 val)  { this->write(&val, sizeof(u32), 1); }
+    void Io::write32be(u32 val)  { this->write(&val, sizeof(u32), 1); }
+
     
-    s8 Io::readS8() {
-        s8 v;
-        this->read(&v, sizeof(s8), 1);
-        return v;
-    }
-
-    s16 Io::readS16() {
-        s16 v;
-        this->read(&v, sizeof(s16), 1);
-        return v;
-    }
-
-    s32 Io::readS32() {
-        s32 v;
-        this->read(&v, sizeof(s32), 1);
-        return v;
-    }    
     
-    void Io::writeU8(u8 val)    { this->write(&val, sizeof(u8), 1); }
-    void Io::writeU16(u16 val)  { this->write(&val, sizeof(u16), 1); }
-    void Io::writeU32(u32 val)  { this->write(&val, sizeof(u32), 1); }
+    /* typesafe interface */
+    s8 Io::readS8() { return static_cast<s8>(read8()); }
+    u8 Io::readU8() { return static_cast<u8>(read8()); }
 
-    void Io::writeS8(s8 val)    { this->write(&val, sizeof(s8), 1); }
-    void Io::writeS16(s16 val)  { this->write(&val, sizeof(s16), 1); }
-    void Io::writeS32(s32 val)  { this->write(&val, sizeof(s32), 1); }
+    s16 Io::readS16le() { return static_cast<s16>(read16le()); }
+    s16 Io::readS16be() { return static_cast<s16>(read16be()); }
+    u16 Io::readU16le() { return static_cast<u16>(read16le()); }
+    u16 Io::readU16be() { return static_cast<u16>(read16be()); }
+
+    s32 Io::readS32le() { return static_cast<s32>(read32le()); }
+    s32 Io::readS32be() { return static_cast<s32>(read32be()); }
+    u32 Io::readU32le() { return static_cast<u32>(read32le()); }
+    u32 Io::readU32be() { return static_cast<u32>(read32be()); }
+    
+
+    void Io::writeS8(s8 val) { write8(static_cast<s8>(val)); }
+    void Io::writeU8(u8 val) { write8(static_cast<u8>(val)); }
+    
+    void Io::writeS16le(s16 val) { write16le(static_cast<u16>(val)); }
+    void Io::writeS16be(s16 val) { write16be(static_cast<u16>(val)); }
+    void Io::writeU16le(u16 val) { write16le(static_cast<u16>(val)); }
+    void Io::writeU16be(u16 val) { write16be(static_cast<u16>(val)); }
+    
+    void Io::writeS32le(s32 val) { write32le(static_cast<u32>(val)); }
+    void Io::writeS32be(s32 val) { write32be(static_cast<u32>(val)); }
+    void Io::writeU32le(u32 val) { write32le(static_cast<u32>(val)); }
+    void Io::writeU32be(u32 val) { write32be(static_cast<u32>(val)); }
+    
+    
+
 }

@@ -18,7 +18,7 @@
 #include "PatternData.hpp"
 
 
-namespace vmp 
+namespace vmp
 {
     bool PatternData::hasNote()             { return flags & FLAG_NOTE; }
     bool PatternData::hasInstrument()       { return flags & FLAG_INSTRUMENT; }
@@ -35,7 +35,8 @@ namespace vmp
     u8 PatternData::getEffectValueUpper()   { return (effectValue >> 4); }
     
     PatternData::PatternData()
-        :flags(0) {}
+        : flags(0)
+    {}
     
     PatternData::~PatternData() {}
     

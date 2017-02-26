@@ -15,41 +15,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* 
- * File:   IoMem.hpp
- * Author: vlo
- * 
- * Memory input/output 
- *
- * Created on 12. November 2015, 18:44
- */
-
-#ifndef IOMEM_HPP
-#define IOMEM_HPP
-
-#include "Io.hpp"
+#include "DefsMOD.hpp"
 
 namespace vmp 
 {
-    class IoMem : public Io
-    {
-    private:
-        void* memPtr;
-        size_t memSize;
-        size_t position;
-        
-    public:
-        
-        IoMem(void* ptr, size_t size);
-        ~IoMem();
-        
-        void seek(size_t n, whence_t whence) override;
-        void read(void* ptr, size_t size, size_t n) override;
-        void write(void* ptr, size_t size, size_t n) override;
-        size_t tell() override;
-        bool eof() override;
-    };
+    constexpr u16 DefsMOD::periods[numPeriods];
+    constexpr u8 DefsMOD::sineTable[32];
+    constexpr float DefsMOD::paulaFreq[2];
 }
-
-#endif /* IO_MEM_HPP */
-
