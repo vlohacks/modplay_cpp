@@ -111,8 +111,5 @@ namespace vmp
             return swapEndianU32(val);
 #endif
         }
-
-
-
         
 }

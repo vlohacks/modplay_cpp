@@ -32,7 +32,7 @@ namespace vmp
 {
     Player::Player(Module* m, u32 sample_rate)
         : sampleRate(sample_rate)
-        , resampling(RESAMPLING_LINEAR)
+        , resampling(RESAMPLING_NONE)
         , effects(0)
     {
         setModule(m);
@@ -40,7 +40,7 @@ namespace vmp
     
     Player::Player(u32 sample_rate)
         : sampleRate(sample_rate)
-        , resampling(RESAMPLING_LINEAR)
+        , resampling(RESAMPLING_NONE)
         , effects(0)
     {}
     
@@ -182,11 +182,11 @@ namespace vmp
                 //    (player->row_callback)(player, player->callback_user_ptr);
 
                 // fetch new pattern data from module
-                fprintf(stderr, "%02d:%02d:%02d|", currentOrder, currentPattern, currentRow);
+                //fprintf(stderr, "%02d:%02d:%02d|", currentOrder, currentPattern, currentRow);
                 for (i = 0; i < module->getNumTracks(); i++) {
                     tracks[i].setData(&module->getData(currentPattern, currentRow, i));
                     
-                    ModuleUtils::dumpData(module->getData(currentPattern, currentRow, i));
+                    //ModuleUtils::dumpData(module->getData(currentPattern, currentRow, i));
                     //player->channels[k].effect_num = current_data->effect_num;
                     //player->channels[k].effect_value = current_data->effect_value;
 
@@ -194,7 +194,7 @@ namespace vmp
                     effects->newRowAction(*this, tracks[i]);
                                         
                 }
-                fprintf(stderr, "\n");
+                //fprintf(stderr, "\n");
                 
                 
 
@@ -232,17 +232,17 @@ namespace vmp
         mix_tmp_r = 0;
         
         for (Track& track : tracks) {
-              //if ((player->solo_channel >= 0) && (k != player->solo_channel))
-              //    continue;
+
             if (!track.isActive())
                 continue;
             
-            sample_mac_t s = fetchSample(track);//  player_channel_fetch_sample(player, k);
+            sample_mac_t s = fetchSample(track);
 
             // Performance Tuning: no need to do anything with 0-samples
             if (s != 0) {
                 s *= track.getVolume();
-                s /= 64; 
+                s *= track.getFxVolume();
+                s /= (64 * 64); 
 
                 sample_mac_t cr = (s * track.getPanning()) / 256;
                 sample_mac_t cl = (s * (255 - track.getPanning())) / 256;
@@ -251,19 +251,19 @@ namespace vmp
                 mix_tmp_r += cr;
             }
 
-          }
+        }
 
           // TODO reimplement callback
           //if (player->channel_sample_callback) 
           //    (player->channel_sample_callback)(player, player->callback_user_ptr);
 
-          mix_tmp_l /= static_cast<sample_mac_t>(module->getNumTracks());
-          mix_tmp_r /= static_cast<sample_mac_t>(module->getNumTracks());
-          
-          mix_l = static_cast<sample_t>(mix_tmp_l);
-          mix_r = static_cast<sample_t>(mix_tmp_r);
+        mix_tmp_l /= static_cast<sample_mac_t>(module->getNumTracks());
+        mix_tmp_r /= static_cast<sample_mac_t>(module->getNumTracks());
 
-          tickPos--;
+        mix_l = static_cast<sample_t>(mix_tmp_l);
+        mix_r = static_cast<sample_t>(mix_tmp_r);
+
+        tickPos--;
         
     }
     
@@ -286,7 +286,6 @@ namespace vmp
         patternDelay = 0;
         patternDelayActive = false;
         haveData = true;
-        
     }
     
     void Player::setModule(Module* m) 
@@ -298,9 +297,8 @@ namespace vmp
         
         reset();
                 
-        if (effects) {
+        if (effects) 
             delete effects;
-        }
         
         switch (module->getModuleType()) {
             case Module::MODULE_TYPE_MOD:
@@ -308,10 +306,8 @@ namespace vmp
                 break;
         }
         
-        i = 0;
-        for(i = 0; i < module->getNumTracks(); i++) {
+        for(i = 0; i < module->getNumTracks(); i++) 
             tracks[i].setPanning(module->getInitialPanning(i));
-        }
     }
     
     Module* Player::getModule()
@@ -363,21 +359,16 @@ namespace vmp
         
         Sample& sample = module->getSample(track.getInstrument());
 
-        precision_t saved_sample_pos = track.getSamplePos();
+        //precision_t saved_sample_pos = track.getSamplePos();
         // maintain looping
         if (sample.getLoopEnabled()) {
-            while (static_cast<u32>(track.getSamplePos()) > static_cast<precision_t>(sample.getLoopEnd())) {
+            while (static_cast<u32>(track.getSamplePos()) > static_cast<precision_t>(sample.getLoopEnd()))
                 track.setSamplePos(track.getSamplePos() - static_cast<precision_t>(sample.getLoopLength()));
-            }
-            if (track.getSamplePos() < 0)
-                *((int*)0) = 0;
-            
-            if (static_cast<u32>(track.getSamplePos()) > sample.getLength())
-                *((int*)0) = 0;
-                
         } else {
-            if (track.getSamplePos() >= static_cast<precision_t>(sample.getLength()))
+            if (track.getSamplePos() >= static_cast<precision_t>(sample.getLength())) {
                 return SAMPLE_T_ZERO;
+                track.setActive(false);
+            }
         }
 
         // fetch sample 
@@ -397,13 +388,13 @@ namespace vmp
                 else
                     s2 = s;
             }
-            // conversion to int will remove the fractional part of the sample_pos
+            // subtract int from float will leave the fractional offset of sample position which is the "in between" factor 
+            // for the interpolation calculation
             s += (s2 - s) * (track.getSamplePos() - static_cast<precision_t>(static_cast<int>(track.getSamplePos())));  
         }
 
         // advance sample position
         track.setSamplePos(track.getSamplePos() + track.getSampleStep());
-        //channel->sample_pos += ((float)channel->frequency / (float)player->sample_rate);
 
         return s;
     }

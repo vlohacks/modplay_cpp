@@ -29,8 +29,8 @@ namespace vmp
     
     
     ModuleMOD::ModuleMOD()
+        : Module(MODULE_TYPE_MOD)
     {
-        moduleType = MODULE_TYPE_MOD;
     }
     
     // check if the file is a valid MOD file
@@ -185,19 +185,28 @@ namespace vmp
     {
         char tmp[23];
         
-        u32 ls, ll, le;
+        u32 l, ls, ll, le;
 
         io.read(tmp, 22, 1);
         tmp[22] = 0;
         sample.setName(string(tmp));
         
-        sample.setLength(static_cast<u32>(io.readU16be()) << 1);
+        l = static_cast<u32>(io.readU16be()) << 1;
+        
+        sample.setLength(l);
         sample.setFinetune(io.readS8() & 0x0f);
         sample.setDefaultVolume(io.readU8());
         
         ls = static_cast<u32>(io.readU16be()) << 1;
         ll = static_cast<u32>(io.readU16be()) << 1;
+        
         le = (ll + ls) - 1;
+        
+        // There seem to be mods with loop length past sample length 
+        // (example: moby - apology, sample #06)
+        // assume last sample = loop end in this case....
+        if (le > l)
+            le = l;
         
         sample.setLoop(ll > 2, ls, le);
     }    

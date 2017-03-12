@@ -76,24 +76,24 @@ namespace vmp
         void    setDefaultVolume(u8 val);
         
 
-        void    loadPtr(const void* src_data, sample_data_t src_format, u32 count);
-        void    loadIo (Io& io, sample_data_t src_format, u32 count);
+        void    loadPtr(const void* src_data, const sample_data_t src_format, u32 count);
+        void    loadIo (Io& io, const sample_data_t src_format, u32 count);
 
-        void    loadPtr(const void* src_data, sample_data_t src_format);
-        void    loadIo (Io& io, sample_data_t src_format);
+        void    loadPtr(const void* src_data, const sample_data_t src_format);
+        void    loadIo (Io& io, const sample_data_t src_format);
 
         
-        bool    getLoopEnabled();
-        u32     getLoopStart();
-        u32     getLoopEnd();
-        u32     getLoopLength();
-        u32     getLength();
-        u8      getDefaultVolume();
-        u32     getMiddleCSpeed();
-        s8      getFinetune();
-        const string& getName();
-        sample_t getData(u32 index);
-        bool    hasData();
+        bool    getLoopEnabled() const;
+        u32     getLoopStart() const;
+        u32     getLoopEnd() const;
+        u32     getLoopLength() const;
+        u32     getLength() const;
+        u8      getDefaultVolume() const;
+        u32     getMiddleCSpeed() const;
+        s8      getFinetune() const;
+        const string& getName() const;
+        sample_t getData(const u32 index) const;
+        bool    hasData() const;
     };
 }
 

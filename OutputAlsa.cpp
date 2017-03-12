@@ -23,7 +23,6 @@ namespace vmp
         : outputOptions(options)
         , Output(p)
     {
-        //player = p;
     }
     
     

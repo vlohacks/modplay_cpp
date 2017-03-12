@@ -36,7 +36,7 @@ namespace vmp {
     
     Sample::~Sample() {}
     
-    void Sample::loadIo(Io& io, sample_data_t src_format, u32 count)
+    void Sample::loadIo(Io& io, const sample_data_t src_format, u32 count)
     {
         length = count;
         while(count--) {
@@ -52,7 +52,7 @@ namespace vmp {
         haveData = true;
     }
     
-    void Sample::loadPtr(const void* src_data, sample_data_t src_format, u32 count)
+    void Sample::loadPtr(const void* src_data, const sample_data_t src_format, u32 count)
     {
         length = count;
         int i = 0;
@@ -70,8 +70,8 @@ namespace vmp {
         haveData = true;
     }
     
-    void Sample::loadIo(Io& io, sample_data_t src_format) { loadIo(io, src_format, length); }
-    void Sample::loadPtr(const void* src_data, sample_data_t src_format) { loadPtr(src_data, src_format, length); }
+    void Sample::loadIo(Io& io, const sample_data_t src_format) { loadIo(io, src_format, length); }
+    void Sample::loadPtr(const void* src_data, const sample_data_t src_format) { loadPtr(src_data, src_format, length); }
 
     void Sample::setName(string val){ name = val; }
     void Sample::setMiddleCSpeed(u32 val) { middleCSpeed = val; }
@@ -85,19 +85,19 @@ namespace vmp {
         loopEnd = end;
     }
     
-    bool Sample::getLoopEnabled()   { return loopEnabled; }
-    u32 Sample::getLoopStart()      { return loopStart; }
-    u32 Sample::getLoopEnd()        { return loopEnd; }
-    u32 Sample::getLoopLength()     { return (loopEnd - loopStart)+1; }
-    u32 Sample::getLength()         { return length; }
-    u8 Sample::getDefaultVolume()   { return defaultVolume; }
-    u32 Sample::getMiddleCSpeed()   { return middleCSpeed; }
-    s8 Sample::getFinetune()        { return finetune; }
+    bool Sample::getLoopEnabled() const   { return loopEnabled; }
+    u32 Sample::getLoopStart() const      { return loopStart; }
+    u32 Sample::getLoopEnd() const        { return loopEnd; }
+    u32 Sample::getLoopLength() const     { return (loopEnd - loopStart) + 1; }
+    u32 Sample::getLength() const         { return length; }
+    u8 Sample::getDefaultVolume() const   { return defaultVolume; }
+    u32 Sample::getMiddleCSpeed() const   { return middleCSpeed; }
+    s8 Sample::getFinetune() const        { return finetune; }
     
 
-    const string& Sample::getName() { return name; }
+    const string& Sample::getName() const { return name; }
     
-    sample_t Sample::getData(u32 index) { return data[index]; }
-    bool Sample::hasData() { return haveData; }
+    sample_t Sample::getData(const u32 index) const { return data[index]; }
+    bool Sample::hasData() const { return haveData; }
     
 }

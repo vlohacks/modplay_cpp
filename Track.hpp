@@ -49,6 +49,7 @@ namespace vmp
         u32 frequency;
         u8 instrument;
         u8 volume;
+        u8 fxVolume;        // currently only for tremolo effect :-(
         
         int vibratoState;
         u8 vibratoWaveform;
@@ -77,61 +78,64 @@ namespace vmp
         Track();
         
         void setData(PatternData* data);
-        PatternData* getData();
+        PatternData* getData() const;
         
-        u16 getPeriod();
+        u16 getPeriod() const;
         void setPeriod(u16 p);
-        u32 getFrequency();
+        u32 getFrequency() const;
         void setFrequency(u32 f);
         
-        u8 getInstrument();
+        u8 getInstrument() const;
         void setInstrument(u8 instr);
-        u8 getVolume();
+        u8 getVolume() const;
         void setVolume(u8 vol);
+        u8 getFxVolume() const;
+        void setFxVolume(u8 vol);
         
-        int getVibratoState();
+
+        int getVibratoState() const;
         void setVibratoState(int vibrato_state);
         
-        u8 getVibratoWaveform();
+        u8 getVibratoWaveform() const;
         void setVibratoWaveform(u8 vibrato_waveform);
 
-        int getTremoloState();
+        int getTremoloState() const;
         void setTremoloState(int tremolo_state);
         
-        u8 getTremoloWaveform();
+        u8 getTremoloWaveform() const;
         void setTremoloWaveform(u8 tremolo_waveform);
 
         
         
-        u16 getDestPeriod();
+        u16 getDestPeriod() const;
         void setDestPeriod(u16 dest_period);
-        u8 getDestInstrument();
+        u8 getDestInstrument() const;
         void setDestInstrument(u8 dest_instrument);
-        u8 getPatternLoopPosition();
+        u8 getPatternLoopPosition() const;
         void setPatternLoopPosition(u8 loop_position);
-        u8 getPatternLoopCount();
+        u8 getPatternLoopCount() const;
         void setPatternLoopCount(u8 loop_count);
-        u8 getSampleDelay();
+        u8 getSampleDelay() const;
         void setSampleDelay(u8 delay);
         
-        bool getPendingFrequencyUpdate();
+        bool getPendingFrequencyUpdate() const;
         void setPendingFrequencyUpdate(bool v);
         
-        precision_t getSamplePos();
+        precision_t getSamplePos() const;
         void setSamplePos(precision_t sample_pos);
         
-        precision_t getSampleStep();
+        precision_t getSampleStep() const;
         void setSampleStep(precision_t sample_step);
         
-        u8 getPanning();
+        u8 getPanning() const;
         void setPanning(u8 pan);
         
-        bool isActive();
+        bool isActive() const;
         void setActive(bool state);
         
-        u8 recallEffect(int effect_no);
-        u8 recallEffectLower(int effect_no);
-        u8 recallEffectUpper(int effect_no);
+        u8 recallEffect(int effect_no) const;
+        u8 recallEffectLower(int effect_no) const;
+        u8 recallEffectUpper(int effect_no) const;
         
         void storeEffect(int effect_no, u8 value);
         void storeEffectLower(int effect_no, u8 value);

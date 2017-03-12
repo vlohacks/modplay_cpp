@@ -41,12 +41,13 @@ namespace vmp
     {
     protected:
         typedef void (*effect_t)(Player&, Track&);
-        vector<effect_t> effectMap;
+        const vector<effect_t> effectMap;
         
         static void unimplementedEffect(Player&, Track&);
         
         
     public:
+        Effects(vector<effect_t> map);
         void doEffect(int effect_num, Player& player, Track& track);
         virtual void newRowAction(Player& player, Track& track) = 0;
     };

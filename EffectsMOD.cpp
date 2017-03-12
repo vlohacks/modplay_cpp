@@ -29,26 +29,26 @@
 namespace vmp
 {
     EffectsMOD::EffectsMOD() 
-    
-    {
-        effectMap = vector<effect_t>(NUM_EFFECTS, Effects::unimplementedEffect);
-        effectMap[0x0] = EffectsMOD::arpeggio;
-        effectMap[0x1] = EffectsMOD::slideUp;
-        effectMap[0x2] = EffectsMOD::slideDown;
-        effectMap[0x3] = EffectsMOD::slideToNote;
-        effectMap[0x4] = EffectsMOD::vibrato;
-        effectMap[0x5] = EffectsMOD::slideToNoteVolumeSlide;
-        effectMap[0x6] = EffectsMOD::vibratoVolumeSlide;
-        effectMap[0x7] = EffectsMOD::tremolo;
-        effectMap[0x8] = EffectsMOD::panning;
-        effectMap[0x9] = EffectsMOD::sampleOffset;
-        effectMap[0xa] = EffectsMOD::volumeSlide;
-        effectMap[0xb] = EffectsMOD::positionJump;
-        effectMap[0xc] = EffectsMOD::setVolume;
-        effectMap[0xd] = EffectsMOD::patternBreak;
-        effectMap[0xe] = EffectsMOD::special;
-        effectMap[0xf] = EffectsMOD::setSpeed;
-    }
+        : Effects(vector<effect_t>({
+            EffectsMOD::arpeggio,
+            EffectsMOD::slideUp,
+            EffectsMOD::slideDown,
+            EffectsMOD::slideToNote,
+            EffectsMOD::vibrato,
+            EffectsMOD::slideToNoteVolumeSlide,
+            EffectsMOD::vibratoVolumeSlide,
+            EffectsMOD::tremolo,
+            EffectsMOD::panning,
+            EffectsMOD::sampleOffset,
+            EffectsMOD::volumeSlide,
+            EffectsMOD::positionJump,
+            EffectsMOD::setVolume,
+            EffectsMOD::patternBreak,
+            EffectsMOD::special,
+            EffectsMOD::setSpeed
+            
+    }))
+    {}
     
     
     void EffectsMOD::setTrackFrequency(Player& player, Track& track, u16 period)
@@ -83,6 +83,8 @@ namespace vmp
         PatternData* data = track.getData();
         Module* module = player.getModule();
 
+        track.setFxVolume(64);
+        
         // special behaviour for sample / note delay
         if ((data->getEffectCmd() == 0xe) && (data->getEffectValueUpper() == 0xd)) {
             if (data->hasNote())
@@ -440,7 +442,7 @@ namespace vmp
                 delta = track.getVolume();
 
             temp2 = track.getVolume() - delta;
-            track.setVolume(temp2);
+            track.setFxVolume(temp2);
         }
 
         //fprintf(stderr, "tremolo: s=%i, v=%i\n", player->channels[channel].tremolo_state, player->channels[channel].volume_master);

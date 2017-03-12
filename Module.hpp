@@ -61,7 +61,7 @@ namespace vmp
             MODULE_TYPE_S3M
         } module_type_t;
         
-        Module();
+        Module(const module_type_t module_type);
         ~Module();
         
         virtual bool loadCheck(Io& io) = 0;
@@ -71,19 +71,19 @@ namespace vmp
         PatternData& getData(u8 pattern_no, u8 row_no, u8 track_no);
         Sample& getSample(u8 sample_no);
         
-        u8 getNumPatterns();
-        u8 getNumOrders();
-        u8 getNumTracks();
-        u8 getNumSamples();
-        u8 getPatternForOrder(u8 order_no);
-        module_type_t getModuleType();
+        u8 getNumPatterns() const;
+        u8 getNumOrders() const;
+        u8 getNumTracks() const;
+        u8 getNumSamples() const;
+        u8 getPatternForOrder(u8 order_no) const;
+        module_type_t getModuleType() const;
         
-        u8 getInitialSpeed();
-        u8 getInitialBpm();
-        u8 getInitialPanning(u8 track_no);
+        u8 getInitialSpeed() const;
+        u8 getInitialBpm() const;
+        u8 getInitialPanning(u8 track_no) const;
 
     protected:
-        module_type_t moduleType;
+        const module_type_t moduleType;
         
     };
 }

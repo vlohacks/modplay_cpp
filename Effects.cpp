@@ -23,6 +23,9 @@
 
 namespace vmp 
 {
+    Effects::Effects(vector<effect_t> map)
+        : effectMap(map)
+    {}
     
     void Effects::doEffect(int effect_num, Player& player, Track& track)
     {
@@ -33,6 +36,6 @@ namespace vmp
     void Effects::unimplementedEffect(Player& player, Track& track)
     {
         // todo... cry
-        fprintf(stderr, "FUCKYOU!! UNIMPLEMENTED EFFECT!!!!! %01x%02x\n",track.getData()->getEffectCmd(), track.getData()->getEffectValue());
+        //fprintf(stderr, "FUCKYOU!! UNIMPLEMENTED EFFECT!!!!! %01x%02x\n",track.getData()->getEffectCmd(), track.getData()->getEffectValue());
     }
 }
