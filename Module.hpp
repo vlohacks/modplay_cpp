@@ -67,21 +67,19 @@ namespace vmp
         virtual bool loadCheck(Io& io) = 0;
         virtual void load(Io& io) = 0;
         
-        Pattern& getPattern(u8 pattern_no);
-        PatternData& getData(u8 pattern_no, u8 row_no, u8 track_no);
-        Sample& getSample(u8 sample_no);
-        
-        u8 getNumPatterns() const;
-        u8 getNumOrders() const;
-        u8 getNumTracks() const;
-        u8 getNumSamples() const;
-        u8 getPatternForOrder(u8 order_no) const;
-        module_type_t getModuleType() const;
-        
-        u8 getInitialSpeed() const;
-        u8 getInitialBpm() const;
-        u8 getInitialPanning(u8 track_no) const;
-
+        Pattern&        getPattern(u8 pattern_no)                       { return patterns[pattern_no]; }
+        PatternData&    getData(u8 pattern_no, u8 row_no, u8 track_no)  { return patterns[pattern_no].getRow(row_no)[track_no];  }
+        u8              getNumPatterns() const                          { return numPatterns; }
+        u8              getNumTracks() const                            { return numTracks; }
+        u8              getNumOrders() const                            { return numOrders; }
+        u8              getNumSamples() const                           { return numSamples; }
+        Sample&         getSample(u8 sample_no)                         { return samples[sample_no]; }
+        u8              getPatternForOrder(u8 order_no) const           { return orders[order_no]; }
+        module_type_t   getModuleType() const                           { return moduleType; }
+        u8              getInitialSpeed() const                         { return initialSpeed; }
+        u8              getInitialBpm() const                           { return initialBpm; }
+        u8              getInitialPanning(u8 track_no) const            { return initialPanning[track_no]; }
+    
     protected:
         const module_type_t moduleType;
         

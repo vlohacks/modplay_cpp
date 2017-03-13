@@ -77,69 +77,71 @@ namespace vmp
         
         Track();
         
-        void setData(PatternData* data);
-        PatternData* getData() const;
-        
-        u16 getPeriod() const;
-        void setPeriod(u16 p);
-        u32 getFrequency() const;
-        void setFrequency(u32 f);
-        
-        u8 getInstrument() const;
-        void setInstrument(u8 instr);
-        u8 getVolume() const;
-        void setVolume(u8 vol);
-        u8 getFxVolume() const;
-        void setFxVolume(u8 vol);
-        
+    void setData(PatternData* data)          { patternData = data; }
+    PatternData* getData() const             { return patternData; }
+    
+    u16 getPeriod() const                    { return period; }
+    void setPeriod(u16 p)                    { period = p; }
+    
+    u32 getFrequency() const                 { return frequency; }
+    void setFrequency(u32 f)                 { frequency = f; }
+    
+    u8 getInstrument() const                 { return instrument; }
+    void setInstrument(u8 instr)             { instrument = instr; }
+    
+    u8 getVolume() const                     { return volume; }
+    void setVolume(u8 vol)                   { volume = vol; }
 
-        int getVibratoState() const;
-        void setVibratoState(int vibrato_state);
-        
-        u8 getVibratoWaveform() const;
-        void setVibratoWaveform(u8 vibrato_waveform);
+    u8 getFxVolume() const                   { return fxVolume; }
+    void setFxVolume(u8 vol)                 { fxVolume = vol; }
+    
+    int getVibratoState() const              { return vibratoState; }
+    void setVibratoState(int vibrato_state)  { vibratoState = vibrato_state; }
+    
+    u8 getVibratoWaveform() const                { return vibratoWaveform; }
+    void setVibratoWaveform(u8 vibrato_waveform) { vibratoWaveform = vibrato_waveform; }
 
-        int getTremoloState() const;
-        void setTremoloState(int tremolo_state);
-        
-        u8 getTremoloWaveform() const;
-        void setTremoloWaveform(u8 tremolo_waveform);
+    int getTremoloState() const              { return tremoloState; }
+    void setTremoloState(int tremolo_state)  { tremoloState = tremolo_state; }
+    
+    u8 getTremoloWaveform() const            { return tremoloWaveform; }
+    void setTremoloWaveform(u8 tremolo_waveform) { tremoloWaveform = tremolo_waveform; }
+    
+    
+    u16 getDestPeriod() const                { return destPeriod; }
+    void setDestPeriod(u16 dest_period)      { destPeriod = dest_period; }
+    
+    u8 getDestInstrument() const             { return destInstrument; }
+    void setDestInstrument(u8 dest_instrument) { destInstrument = dest_instrument; }
+    
+    u8 getPatternLoopPosition() const        { return patternLoopPosition; }
+    void setPatternLoopPosition(u8 loop_position) { patternLoopPosition = loop_position; }
 
-        
-        
-        u16 getDestPeriod() const;
-        void setDestPeriod(u16 dest_period);
-        u8 getDestInstrument() const;
-        void setDestInstrument(u8 dest_instrument);
-        u8 getPatternLoopPosition() const;
-        void setPatternLoopPosition(u8 loop_position);
-        u8 getPatternLoopCount() const;
-        void setPatternLoopCount(u8 loop_count);
-        u8 getSampleDelay() const;
-        void setSampleDelay(u8 delay);
-        
-        bool getPendingFrequencyUpdate() const;
-        void setPendingFrequencyUpdate(bool v);
-        
-        precision_t getSamplePos() const;
-        void setSamplePos(precision_t sample_pos);
-        
-        precision_t getSampleStep() const;
-        void setSampleStep(precision_t sample_step);
-        
-        u8 getPanning() const;
-        void setPanning(u8 pan);
-        
-        bool isActive() const;
-        void setActive(bool state);
-        
-        u8 recallEffect(int effect_no) const;
-        u8 recallEffectLower(int effect_no) const;
-        u8 recallEffectUpper(int effect_no) const;
-        
-        void storeEffect(int effect_no, u8 value);
-        void storeEffectLower(int effect_no, u8 value);
-        void storeEffectUpper(int effect_no, u8 value);
+    u8 getPatternLoopCount() const           { return patternLoopCount; }
+    void setPatternLoopCount(u8 loop_count)  { patternLoopCount = loop_count; }
+    
+    u8 getSampleDelay() const                { return sampleDelay; }
+    void setSampleDelay(u8 delay)            { sampleDelay = delay; }
+    
+    precision_t getSamplePos() const         { return samplePos; }
+    void setSamplePos(precision_t sample_pos) { samplePos = sample_pos; }
+    
+    precision_t getSampleStep() const        { return sampleStep; }
+    void setSampleStep(precision_t sample_step) { sampleStep = sample_step; }
+
+    u8 getPanning() const { return panning; }
+    void setPanning(u8 pan) { panning = pan; }
+    
+    bool isActive()  const { return active; }
+    void setActive(bool state) { active = state; }
+    
+    u8 recallEffect(int effect_no) const { return effectStorage[effect_no].all; }
+    u8 recallEffectLower(int effect_no) const { return effectStorage[effect_no].lower; }
+    u8 recallEffectUpper(int effect_no) const { return effectStorage[effect_no].upper; }
+    
+    void storeEffect(int effect_no, u8 value) { effectStorage[effect_no].all = value; }
+    void storeEffectLower(int effect_no, u8 value) { effectStorage[effect_no].lower = value; }
+    void storeEffectUpper(int effect_no, u8 value) { effectStorage[effect_no].upper = value; }
         
     };
 }

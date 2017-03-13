@@ -47,8 +47,9 @@ namespace vmp
         Pattern();
         ~Pattern();
         
-        vector<PatternData>& getRow(const u8 row_no);
-        u8 getNumRows();
+        std::vector<PatternData>&   getRow(const u8 row_no) { return patternData[row_no]; }
+        u8                          getNumRows()            { return patternData.size(); }        
+        
     };
 }
 

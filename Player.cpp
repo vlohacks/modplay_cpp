@@ -32,7 +32,7 @@ namespace vmp
 {
     Player::Player(Module* m, u32 sample_rate)
         : sampleRate(sample_rate)
-        , resampling(RESAMPLING_NONE)
+        , resampling(RESAMPLING_LINEAR)
         , effects(0)
     {
         setModule(m);
@@ -40,7 +40,7 @@ namespace vmp
     
     Player::Player(u32 sample_rate)
         : sampleRate(sample_rate)
-        , resampling(RESAMPLING_NONE)
+        , resampling(RESAMPLING_LINEAR)
         , effects(0)
     {}
     
@@ -356,52 +356,54 @@ namespace vmp
     sample_mac_t Player::fetchSample(Track& track)
     {
         sample_mac_t s, s2;
+        precision_t sample_pos = track.getSamplePos();
         
         Sample& sample = module->getSample(track.getInstrument());
 
         //precision_t saved_sample_pos = track.getSamplePos();
         // maintain looping
         if (sample.getLoopEnabled()) {
-            while (static_cast<u32>(track.getSamplePos()) > static_cast<precision_t>(sample.getLoopEnd()))
-                track.setSamplePos(track.getSamplePos() - static_cast<precision_t>(sample.getLoopLength()));
+            while (static_cast<u32>(sample_pos) > sample.getLoopEnd())
+                sample_pos -= static_cast<precision_t>(sample.getLoopLength());
         } else {
-            if (track.getSamplePos() >= static_cast<precision_t>(sample.getLength())) {
+            if (sample_pos >= static_cast<precision_t>(sample.getLength())) {
                 return SAMPLE_T_ZERO;
                 track.setActive(false);
             }
         }
 
         // fetch sample 
-        s = sample.getData(track.getSamplePos());
+        s = sample.getData(static_cast<u32>(sample_pos));
 
         if (resampling == RESAMPLING_LINEAR) {
             // do linear interpolation
             if (sample.getLoopEnabled()) {
                 // looping sample will interpolate to loop start
-                if (track.getSamplePos() >= static_cast<precision_t>(sample.getLoopEnd())) 
+                if (sample_pos >= static_cast<precision_t>(sample.getLoopEnd())) 
                     s2 = sample.getData(sample.getLoopStart());
                 else 
-                    s2 = sample.getData(track.getSamplePos() + 1);
+                    s2 = sample.getData(static_cast<u32>(sample_pos) + 1);
             } else {
-                if (track.getSamplePos() < (sample.getLength() - 1)) 
-                    s2 = sample.getData(static_cast<u32>(track.getSamplePos()) + 1);
+                if (sample_pos < (sample.getLength() - 1)) 
+                    s2 = sample.getData(static_cast<u32>(sample_pos) + 1);
                 else
                     s2 = s;
             }
             // subtract int from float will leave the fractional offset of sample position which is the "in between" factor 
             // for the interpolation calculation
-            s += (s2 - s) * (track.getSamplePos() - static_cast<precision_t>(static_cast<int>(track.getSamplePos())));  
+            s += (s2 - s) * (sample_pos - static_cast<precision_t>(static_cast<u32>(sample_pos)));  
         }
 
         // advance sample position
-        track.setSamplePos(track.getSamplePos() + track.getSampleStep());
+        sample_pos += track.getSampleStep();
+        track.setSamplePos(sample_pos);
 
         return s;
     }
     
     void Player::calcTickDuration()
     {
-        tickDuration = ((((precision_t)sampleRate / ((precision_t)bpm / 60.0f)) / 4.0f) / 6.0f);
+        tickDuration = (((static_cast<precision_t>(sampleRate) / (static_cast<precision_t>(bpm) / 60.0f)) / 4.0f) / 6.0f);
     }
     
     

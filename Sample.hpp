@@ -68,32 +68,34 @@ namespace vmp
         Sample(Io& io, sample_data_t src_format, u32 count);
         ~Sample();
         
-        void    setName(string name);
         void    setLoop(bool enabled, u32 start, u32 end);
-        void    setMiddleCSpeed(u32 val);
-        void    setFinetune(s8 val);
-        void    setLength(u32 val);
-        void    setDefaultVolume(u8 val);
-        
 
+        void    setName(string val)        { name = val; }
+        void    setMiddleCSpeed(u32 val)   { middleCSpeed = val; }
+        void    setFinetune(s8 val)        { finetune = val; }
+        void    setLength(u32 val)         { length = val; }
+        void    setDefaultVolume(u8 val)   { defaultVolume = val; }
+   
         void    loadPtr(const void* src_data, const sample_data_t src_format, u32 count);
         void    loadIo (Io& io, const sample_data_t src_format, u32 count);
 
         void    loadPtr(const void* src_data, const sample_data_t src_format);
         void    loadIo (Io& io, const sample_data_t src_format);
+       
+        bool    getLoopEnabled() const     { return loopEnabled; }
+        u32     getLoopStart() const        { return loopStart; }
+        u32     getLoopEnd() const          { return loopEnd; }
+        u32     getLoopLength() const       { return (loopEnd - loopStart) + 1; }
+        u32     getLength() const           { return length; }
+        u8      getDefaultVolume() const     { return defaultVolume; }
+        u32     getMiddleCSpeed() const     { return middleCSpeed; }
+        s8      getFinetune() const          { return finetune; }
 
-        
-        bool    getLoopEnabled() const;
-        u32     getLoopStart() const;
-        u32     getLoopEnd() const;
-        u32     getLoopLength() const;
-        u32     getLength() const;
-        u8      getDefaultVolume() const;
-        u32     getMiddleCSpeed() const;
-        s8      getFinetune() const;
-        const string& getName() const;
-        sample_t getData(const u32 index) const;
-        bool    hasData() const;
+        const string& getName() const   { return name; }
+
+        sample_t getData(const u32 index) const { return data[index]; }
+        bool    hasData() const            { return haveData; }
+
     };
 }
 

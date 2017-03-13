@@ -51,31 +51,31 @@ namespace vmp
         PatternData();
         ~PatternData();
         
-        bool hasNote();
-        bool hasInstrument();
-        bool hasVolume();
-        bool hasEffectCmd();
-        bool hasEffectValue();
+        bool    hasNote()               { return flags & FLAG_NOTE; }
+        bool    hasInstrument()         { return flags & FLAG_INSTRUMENT; }
+        bool    hasVolume()             { return flags & FLAG_VOLUME; }
+        bool    hasEffectCmd()          { return flags & FLAG_EFFECT_CMD; }
+        bool    hasEffectValue()        { return flags & FLAG_EFFECT_VALUE; }
+
+        u8      getNote()               { return note; }
+        u8      getInstrument()         { return instrument; }
+        u8      getVolume()             { return volume; }
+        u8      getEffectCmd()          { return effectCmd; }
+        u8      getEffectValue()        { return effectValue; }
+        u8      getEffectValueLower()   { return (effectValue & 0x0f); }
+        u8      getEffectValueUpper()   { return (effectValue >> 4); }
         
-        u8 getNote();
-        u8 getInstrument();
-        u8 getVolume();
-        u8 getEffectCmd();
-        u8 getEffectValue();
-        u8 getEffectValueLower();
-        u8 getEffectValueUpper();
+        void    setNote(u8 val);
+        void    setInstrument(u8 val);
+        void    setVolume(u8 val);
+        void    setEffectCmd(u8 val);
+        void    setEffectValue(u8 val);
         
-        void setNote(u8 val);
-        void setInstrument(u8 val);
-        void setVolume(u8 val);
-        void setEffectCmd(u8 val);
-        void setEffectValue(u8 val);
-        
-        void clearNote();
-        void clearInstrument();
-        void clearVolume();
-        void clearEffectCmd();
-        void clearEffectValue();
+        void    clearNote();
+        void    clearInstrument();
+        void    clearVolume();
+        void    clearEffectCmd();
+        void    clearEffectValue();
     };
 }
 

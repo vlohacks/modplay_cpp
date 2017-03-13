@@ -37,7 +37,7 @@
 
 int main(int argc, char** argv) 
 {
-        QApplication app(argc, argv);
+        //QApplication app(argc, argv);
 	vmp::IoFile f(argv[1], "rb");
         //vmp::IoMem f(dreamit, sizeof(dreamit));
       
@@ -58,8 +58,8 @@ int main(int argc, char** argv)
         vmp::OutputOptionsAlsa oo;
         
         //vmp::OutputRaw o(&player);
-        //vmp::OutputAlsa o(oo, &player);
-        vmp::OutputBenchmark o(&player);
+        vmp::OutputAlsa o(oo, &player);
+        //vmp::OutputBenchmark o(&player);
         
         
         player.setLoop(true);

@@ -23,21 +23,7 @@ namespace vmp
         : patternData(num_rows, vector<PatternData>(num_tracks))
     {}
     
-    /*
-    Pattern::Pattern() 
-    {}
-    */
-    
     Pattern::~Pattern()
     {}
-    
-    std::vector<PatternData>& Pattern::getRow(const u8 row_no)
-    {
-        return patternData[row_no];
-    }
-    
-    u8 Pattern::getNumRows()
-    {
-        return patternData.size();
-    }
+
 }

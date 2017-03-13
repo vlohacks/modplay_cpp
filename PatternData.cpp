@@ -20,19 +20,6 @@
 
 namespace vmp
 {
-    bool PatternData::hasNote()             { return flags & FLAG_NOTE; }
-    bool PatternData::hasInstrument()       { return flags & FLAG_INSTRUMENT; }
-    bool PatternData::hasVolume()           { return flags & FLAG_VOLUME; }
-    bool PatternData::hasEffectCmd()        { return flags & FLAG_EFFECT_CMD; }
-    bool PatternData::hasEffectValue()      { return flags & FLAG_EFFECT_VALUE; }
-    
-    u8 PatternData::getNote()               { return note; }
-    u8 PatternData::getInstrument()         { return instrument; }
-    u8 PatternData::getVolume()             { return volume; }
-    u8 PatternData::getEffectCmd()          { return effectCmd; }
-    u8 PatternData::getEffectValue()        { return effectValue; }
-    u8 PatternData::getEffectValueLower()   { return (effectValue & 0x0f); }
-    u8 PatternData::getEffectValueUpper()   { return (effectValue >> 4); }
     
     PatternData::PatternData()
         : flags(0)

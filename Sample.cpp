@@ -73,11 +73,6 @@ namespace vmp {
     void Sample::loadIo(Io& io, const sample_data_t src_format) { loadIo(io, src_format, length); }
     void Sample::loadPtr(const void* src_data, const sample_data_t src_format) { loadPtr(src_data, src_format, length); }
 
-    void Sample::setName(string val){ name = val; }
-    void Sample::setMiddleCSpeed(u32 val) { middleCSpeed = val; }
-    void Sample::setFinetune(s8 val) { finetune = val; }
-    void Sample::setLength(u32 val) { length = val; }
-    void Sample::setDefaultVolume(u8 val) { defaultVolume = val; }
     void Sample::setLoop(bool enabled, u32 start, u32 end) 
     {
         loopEnabled = enabled;
@@ -85,19 +80,5 @@ namespace vmp {
         loopEnd = end;
     }
     
-    bool Sample::getLoopEnabled() const   { return loopEnabled; }
-    u32 Sample::getLoopStart() const      { return loopStart; }
-    u32 Sample::getLoopEnd() const        { return loopEnd; }
-    u32 Sample::getLoopLength() const     { return (loopEnd - loopStart) + 1; }
-    u32 Sample::getLength() const         { return length; }
-    u8 Sample::getDefaultVolume() const   { return defaultVolume; }
-    u32 Sample::getMiddleCSpeed() const   { return middleCSpeed; }
-    s8 Sample::getFinetune() const        { return finetune; }
-    
-
-    const string& Sample::getName() const { return name; }
-    
-    sample_t Sample::getData(const u32 index) const { return data[index]; }
-    bool Sample::hasData() const { return haveData; }
     
 }
