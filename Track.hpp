@@ -61,6 +61,8 @@ namespace vmp
         
         u16 destPeriod;
         u8 destInstrument;
+        u8 destVolume;
+        
         u8 patternLoopPosition;
         u8 patternLoopCount;
         u8 sampleDelay;
@@ -118,6 +120,10 @@ namespace vmp
     
     u8 getDestInstrument() const             { return destInstrument; }
     void setDestInstrument(u8 dest_instrument) { destInstrument = dest_instrument; }
+
+    u8 getDestVolume() const                 { return destVolume; }
+    void setDestVolume(u8 vol)               { destVolume = vol; }
+
     
     u8 getPatternLoopPosition() const        { return patternLoopPosition; }
     void setPatternLoopPosition(u8 loop_position) { patternLoopPosition = loop_position; }

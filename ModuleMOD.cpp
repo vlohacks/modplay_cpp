@@ -30,8 +30,7 @@ namespace vmp
     
     ModuleMOD::ModuleMOD()
         : Module(MODULE_TYPE_MOD)
-    {
-    }
+    {}
     
     // check if the file is a valid MOD file
     bool ModuleMOD::loadCheck(Io& io) 

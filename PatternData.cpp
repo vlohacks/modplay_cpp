@@ -23,6 +23,8 @@ namespace vmp
     
     PatternData::PatternData()
         : flags(0)
+        , effectCmd(0)
+        , effectValue(0)
     {}
     
     PatternData::~PatternData() {}

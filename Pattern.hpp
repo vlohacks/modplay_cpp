@@ -39,7 +39,6 @@ namespace vmp
     {
     private:
         u8 numRows;
-        //PatternRow* rows;
         vector<vector<PatternData>> patternData;
         
     public:

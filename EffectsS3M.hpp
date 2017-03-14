@@ -21,8 +21,7 @@ namespace vmp
     class EffectsS3M : public Effects
     {
     private:
-        const int NUM_EFFECTS = 16;
-        
+        static u16 getTunedPeriod(Player& player, Track& track, const u16 basePeriod);
     public:
         EffectsS3M();
         ~EffectsS3M();

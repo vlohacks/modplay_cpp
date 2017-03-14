@@ -7,18 +7,115 @@
 #include "EffectsS3M.hpp"
 #include "Player.hpp"
 #include "DefsMOD.hpp"
+#include "DefsS3M.hpp"
+#include <cmath>
 
 namespace vmp
 {
     
     EffectsS3M::EffectsS3M()
         : Effects(vector<effect_t>({
-            
+            Effects::unimplementedEffect,
+            EffectsS3M::ASetSpeed,
+            EffectsS3M::BPositionJump,
+            EffectsS3M::CPatternBreak,
+            EffectsS3M::DVolumeSlide,
+            EffectsS3M::ESlideDown,
+            EffectsS3M::FSlideUp,
+            EffectsS3M::GSlideToNote,
+            EffectsS3M::HVibrato,
+            EffectsS3M::ITremor,
+            EffectsS3M::JArpeggio,
+            EffectsS3M::KVibratoVolumeSlide,
+            EffectsS3M::LSlideToNoteVolumeSlide,
+            Effects::unimplementedEffect,           // No "M" Effect
+            Effects::unimplementedEffect,           // No "N" Effect
+            EffectsS3M::OSampleOffset,
+            Effects::unimplementedEffect,           // No "P" Effect
+            EffectsS3M::QRetriggerVolumeSlide,
+            EffectsS3M::RTremolo,
+            EffectsS3M::SSpecial,
+            EffectsS3M::TSetBpm,
+            Effects::unimplementedEffect,           // No "U" Effect
+            Effects::unimplementedEffect,           // No "V" Effect
+            Effects::unimplementedEffect,           // No "W" Effect
+            EffectsS3M::XPanning
     }))
     {}
     
     EffectsS3M::~EffectsS3M()
     {}
+    
+    
+    void EffectsS3M::newRowAction(Player& player, Track& track)
+    {
+        PatternData* data = track.getData();
+
+        // special behaviour for sample / note delay, here the effect starts the sound
+        if ((data->getEffectCmd() == 19) && (data->getEffectValueUpper() == 0xd)) {
+            /*if (data->hasNote()) {
+                    //player->channels[channel_num].dest_period = player->period_table[data->period_index];
+                track.setDestPeriod(EffectsS3M::getTunedPeriod(player, track, DefsS3M::periods[data->getNote()]));
+                track.setDestInstrument(data->getInstrument());
+                
+                    player->channels[channel_num].dest_period = effects_s3m_get_tuned_period(player, player->period_table[data->period_index], channel_num);
+                    player->channels[channel_num].dest_sample_num = data->sample_num;
+                    player->channels[channel_num].dest_volume = data->volume;
+            } else {
+                track.setDestPeriod(0);
+            }*/
+            return;
+        }
+
+        // set sample
+        if (data->hasInstrument() > 0) {
+            track.setInstrument(data->getInstrument());
+            track.setVolume(player.getModule()->getSample(data->getInstrument()).getDefaultVolume());
+        }
+
+        // set volume
+        if (data->hasVolume())
+            track.setVolume(data->getVolume());
+        
+
+        // set period (note)
+        if (data->hasNote()) {
+
+            // reset vibrato
+            if (track.getVibratoWaveform() < 4)
+                track.setVibratoState(0);
+
+            // reset tremolo
+            if (track.getTremoloWaveform() < 4)
+                track.setTremoloState(0);
+            
+            track.setInstrument(data->getInstrument());
+            if (data->getNote() == 254) {           // note off
+                track.setActive(false);
+                return;
+            } else {
+                // special hack for note portamento... 
+                if (data->getEffectCmd() != 0x7) {
+                    track.setDestPeriod(0);
+                    if (!player.getPatternDelayActive()) {
+                        //player->channels[channel_num].period =  player->period_table[data->period_index];
+                        track.setPeriod(EffectsS3M::getTunedPeriod(player, track, DefsS3M::periods[data->getNote()]));
+                        track.setSamplePos(0);
+                        //player_channel_set_frequency(player, player->channels[channel_num].period, channel_num);
+                    }
+                }
+            }
+        } 
+
+        track.setFxVolume(64);
+
+        // do not set frequency for tone portamento effects
+        //if ((data->effect_num != 0x7) && (data->effect_num != 0x5) && (data->effect_num != 0x6) && (data->effect_num != 0x8)) {
+        if (data->getEffectCmd() != 0x7) {
+            if (data->hasNote())
+                EffectsS3M::setTrackFrequency(player, track, track.getPeriod());
+        }
+    }
     
     
     void EffectsS3M::setTrackFrequency(Player& player, Track& track, u16 period)
@@ -29,6 +126,18 @@ namespace vmp
         
         track.setFrequency(14317056L / period);
         track.setSampleStep(static_cast<precision_t>(track.getFrequency()) / static_cast<precision_t>(player.getSampleRate()));       
+    }
+    
+    
+    u16 EffectsS3M::getTunedPeriod(Player& player, Track& track, const u16 basePeriod)
+    {
+        //if (player->channels[channel].sample_num == 0)
+        //    return 1; was sollte das?????
+        Sample& sample = player.getModule()->getSample(track.getInstrument());
+        return (basePeriod * 8363) / sample.getMiddleCSpeed();
+
+        //module_sample_t * sample = &(player->module->samples[player->channels[channel].sample_num - 1]);
+        //return (base_period * 8363) / sample->header.c2spd;
     }
     
     
@@ -196,12 +305,14 @@ namespace vmp
         if (player.getCurrentTick() == 0) {
             if (data->getEffectValue() > 0) 
                 track.storeEffect(7, data->getEffectValue());
+            if (data->hasNote())
+                track.setDestPeriod(EffectsS3M::getTunedPeriod(player, track, DefsS3M::periods[data->getNote()]));
             return;        
         }
 
-        if (track.getDestPeriod() == 0)
+        if (!data->hasNote())
             return;
-
+        
         if (track.getPeriod() > track.getDestPeriod()) {
             tmp = static_cast<s32>(track.getPeriod()) - static_cast<s32>(track.recallEffect(7) << 2);
             if (tmp < track.getDestPeriod())
@@ -418,50 +529,54 @@ namespace vmp
             }
             EffectsS3M::setTrackFrequency(player, track, track.getPeriod());        
         }
-        //=======!!!!!!========
-
-        /* do the volume slide */
-        if ((player->channels[channel].effect_last_value[12] & 0x0f) == 0x00) {
-            tmp = player->channels[channel].volume + (player->channels[channel].effect_last_value[12] >> 4);
+        
+        // do the volume slide 
+        if (track.recallEffectLower(12) == 0x00) {
+            tmp = static_cast<int>(track.getVolume()) + static_cast<int>(track.recallEffectUpper(12));
             if (tmp > 64)
                 tmp = 64;
-            player->channels[channel].volume = tmp;
-        } else if ((player->channels[channel].effect_last_value[12] & 0xf0) == 0x00) {
-            tmp = (int)player->channels[channel].volume - (int)(player->channels[channel].effect_last_value[12] & 0x0f);
+            track.setVolume(tmp);
+        } else if (track.recallEffectUpper(12) == 0x00) {
+            tmp = static_cast<int>(track.getVolume()) - static_cast<int>(track.recallEffectUpper(12));
             if (tmp < 0)
                 tmp = 0;
-            player->channels[channel].volume = tmp;
-        } 
+            track.setVolume(tmp);
+        }      
     }
 
 
     void EffectsS3M::OSampleOffset(Player& player, Track& track)
     {
-        if (player->current_tick == 0) {
-            if (player->channels[channel].effect_value)
-                player->channels[channel].effect_last_value[15] = player->channels[channel].effect_value;
+        PatternData* data = track.getData();
+        precision_t tmp;
+        
+        if (player.getCurrentTick() == 0) {
+            if (data->getEffectValue() > 0)
+                track.storeEffect(15, data->getEffectValue());
 
-            player->channels[channel].sample_pos = player->channels[channel].effect_last_value[15] << 8;
-            if (player->channels[channel].sample_pos > player->module->samples[player->channels[channel].sample_num - 1].header.length - 1) 
-                player->channels[channel].sample_pos = player->module->samples[player->channels[channel].sample_num - 1].header.length - 1;
+            tmp = static_cast<precision_t>(track.recallEffect(15) << 8);
+            if (tmp > player.getModule()->getSample(track.getInstrument()).getLength() - 1)
+                tmp = player.getModule()->getSample(track.getInstrument()).getLength() - 1;
+            track.setSamplePos(tmp);
         }
     }
 
 
     void EffectsS3M::QRetriggerVolumeSlide(Player& player, Track& track)
     {
+        PatternData* data = track.getData();
         int tmp;
 
-        if (player->current_tick == 0) {
-            if (player->channels[channel].effect_value)
-                player->channels[channel].effect_last_value[17] = player->channels[channel].effect_value;
+        if (player.getCurrentTick() == 0) {
+            if (data->hasEffectValue())
+                track.storeEffect(17, data->getEffectValue());
             return;
         }
 
-        /* do volume slide */
-        tmp = (int)player->channels[channel].volume;
+        // do volume slide
+        tmp = static_cast<int>(track.getVolume());
 
-        switch (player->channels[channel].effect_last_value[17] >> 4) {
+        switch (track.recallEffectUpper(17)) {
             case 0: break;
             case 1: tmp -= 1; break;
             case 2: tmp -= 2; break;
@@ -480,53 +595,51 @@ namespace vmp
             case 15: tmp *= 2; break;
         }
 
-
         if (tmp > 64)
             tmp = 64;
 
         if (tmp < 0)
             tmp = 0;
 
-        player->channels[channel].volume = (int8_t)tmp;
+        track.setVolume(tmp);
 
-        /* do retrigger */
-        if ((player->channels[channel].effect_last_value[17] & 0xf) > 0) {
-            if ((player->current_tick % (player->channels[channel].effect_last_value[17] & 0xf)) == 0)
-                player->channels[channel].sample_pos = 0;  
+        // do retrigger 
+        if (track.recallEffectLower(17) > 0) {
+            if ((player.getCurrentTick() % track.recallEffectLower(17)) == 0)
+                track.setSamplePos(0);
         }
-
-
     }
 
     void EffectsS3M::RTremolo(Player& player, Track& track)
     {
-        uint8_t temp;
+        PatternData* data = track.getData();
+        u8 temp;
         int temp2;
-        uint16_t delta;
+        u16 delta;
 
-        if (player->current_tick == 0) {
-            if (player->channels[channel].tremolo_waveform < 4)
-                player->channels[channel].tremolo_state = 0;
+        if (player.getCurrentTick() == 0) {
+            if (track.getTremoloWaveform() < 4)
+                track.setTremoloState(0);
 
-            if ((player->channels[channel].effect_value >> 4) != 0x00) 
-                player->channels[channel].effect_last_value[player->channels[channel].effect_num] = (player->channels[channel].effect_value >> 4);
+            if ((data->getEffectValueUpper()) != 0x00) 
+                track.storeEffectUpper(18, data->getEffectValueUpper());
 
-            if ((player->channels[channel].effect_value & 0xf) != 0x00) 
-                player->channels[channel].effect_last_value_y[player->channels[channel].effect_num] = (player->channels[channel].effect_value & 0xf);
+            if ((data->getEffectValueLower()) != 0x00) 
+                track.storeEffectUpper(18, data->getEffectValueLower());
 
             return;    
         }
 
-        temp = player->channels[channel].tremolo_state & 0x1f;
+        temp = track.getTremoloState() & 0x1f;
 
-        switch (player->channels[channel].tremolo_waveform & 3) {
+        switch (track.getTremoloWaveform() & 3) {
             case 0: 
-                delta = defs_mod_sine_table[temp]; 
+                delta = DefsMOD::sineTable[temp]; 
                 break;
 
             case 1:
                 temp <<= 3;
-                if (player->channels[channel].tremolo_state < 0)
+                if (track.getTremoloState() < 0)
                     temp = 255 - temp;
                 delta = temp;
                 break;
@@ -536,30 +649,32 @@ namespace vmp
                 break;
 
             case 3:
-                delta = defs_mod_sine_table[temp];
+                delta = DefsMOD::sineTable[temp]; 
                 break;
         }
 
 
-        delta *= player->channels[channel].effect_last_value_y[player->channels[channel].effect_num];
+        delta *= track.recallEffectLower(18);
         delta /= 64;
 
-        if (player->channels[channel].tremolo_state >= 0) {
-            if (player->channels[channel].volume + delta > 64) 
-                delta = 64 - player->channels[channel].volume;
-            temp2 = (int)player->channels[channel].volume + delta;
-            player->channels[channel].volume_master = (uint8_t)temp2;
-        } else {
-            if ((int)player->channels[channel].volume - delta < 0) 
-                delta = player->channels[channel].volume;
+        if (track.getTremoloState() >= 0) {
+            if (track.getVolume() + delta > 64) 
+                delta = 64 - track.getVolume();
 
-            temp2 = (int)player->channels[channel].volume - delta;
-            player->channels[channel].volume_master = (uint8_t)temp2;
+            temp2 = static_cast<int>(track.getVolume()) + delta;
+            track.setFxVolume(temp2);
+        } else {
+            if ((static_cast<int>(track.getVolume()) - delta) < 0) 
+                delta = track.getVolume();
+
+            temp2 = static_cast<int>(track.getVolume()) - delta;
+            track.setFxVolume(temp2);
         }
 
-        player->channels[channel].tremolo_state += player->channels[channel].effect_last_value[player->channels[channel].effect_num];
-        if (player->channels[channel].tremolo_state > 31)
-            player->channels[channel].tremolo_state -= 64;
+        temp2 = track.getTremoloState() + track.recallEffectUpper(18);
+        if (temp2 > 31)
+            temp2 -= 64;
+        track.setTremoloState(temp2);
     }
 
 
@@ -579,76 +694,78 @@ namespace vmp
 
     void EffectsS3M::S3SetVibratoWaveform(Player& player, Track& track)
     {
-        if (player->current_tick == 0) 
-            player->channels[channel].vibrato_waveform = player->channels[channel].effect_value & 0x0f;
-
+        if (player.getCurrentTick() == 0) 
+            track.setVibratoWaveform(track.getData()->getEffectValueLower());
     }
 
     void EffectsS3M::S4SetTremoloWaveform(Player& player, Track& track)
     {
-        if (player->current_tick == 0) 
-            player->channels[channel].tremolo_waveform = player->channels[channel].effect_value & 0x0f;
-
+        if (player.getCurrentTick() == 0) 
+            track.setTremoloWaveform(track.getData()->getEffectValueLower());
     }
 
     void EffectsS3M::S8Panning(Player& player, Track& track) 
     {
-        if (player->current_tick == 0) {
-            uint8_t i = player->channels[channel].effect_value & 0x0f;
-            player->channels[channel].panning = (i << 4) | i;//  (i << 4) | ((i << 1) + (i>6?1:0));
+        if (player.getCurrentTick() == 0) {
+            u8 i = track.getData()->getEffectValueLower();
+            track.setPanning((i << 4) | i);
         }
     }
 
     void EffectsS3M::SAStereoControl(Player& player, Track& track)
     {
-        if (player->current_tick == 0) {
-            uint8_t i = player->channels[channel].effect_value & 0x0f;
+        if (player.getCurrentTick() == 0) {
+            u8 i = track.getData()->getEffectValueLower();
 
             if (i > 7)
                 i -= 8;
             else
                 i += 8;
 
-            player->channels[channel].panning = (i << 4) | i;
+            track.setPanning((i << 4) | i);
         }
     }
 
     void EffectsS3M::SCNoteCut(Player& player, Track& track)
     {
-        if ((player->channels[channel].effect_value & 0x0f) <= player->current_tick)
-            player->channels[channel].volume = 0;
+        if (track.getData()->getEffectValueLower() <= player.getCurrentTick())
+            track.setVolume(0);
     }
 
     void EffectsS3M::SDDelaySample(Player& player, Track& track)
     {
-        if (player->current_tick == 0)
-            player->channels[channel].sample_delay = 0;
+        PatternData* data = track.getData();
+        
+        if (player.getCurrentTick() == 0) 
+            track.setSampleDelay(0);
 
-        if (player->channels[channel].sample_delay == (player->channels[channel].effect_value & 0xf)) {
-            if (player->channels[channel].dest_sample_num > 0) {
-                player->channels[channel].sample_num = player->channels[channel].dest_sample_num;
-                player->channels[channel].volume = player->module->samples[player->channels[channel].sample_num - 1].header.volume;
+        if (track.getSampleDelay() == data->getEffectValueLower()) {
+            if (data->hasInstrument()) {
+                track.setInstrument(data->getInstrument());
+                track.setVolume(player.getModule()->getSample(data->getInstrument()).getDefaultVolume());
             }
 
-            if (player->channels[channel].dest_period > 0) {
-                player->channels[channel].period = player->channels[channel].dest_period;
-                player->channels[channel].sample_pos = 0;
-                player_channel_set_frequency(player, player->channels[channel].period, channel);
-            }
-
-            if (player->channels[channel].dest_volume >= 0)
-                player->channels[channel].volume = player->channels[channel].dest_volume;
+            if (data->hasNote()) {
+                track.setPeriod(EffectsS3M::getTunedPeriod(player, track, DefsS3M::periods[data->getNote()]));
+                track.setSamplePos(0);
+                setTrackFrequency(player, track, track.getPeriod());
+            }            
+            
+            if (data->hasVolume())
+                track.setVolume(data->getVolume());
         }
 
-        player->channels[channel].sample_delay++; // = (player->channels[channel].current_effect_value & 0xf);
+        track.setSampleDelay(track.getSampleDelay() + 1);
     }
 
     void EffectsS3M::TSetBpm(Player& player, Track& track)
     {
-        if (player->current_tick == 0) {
-             if (player->channels[channel].effect_value >= 0x20) {
-                player->bpm = player->channels[channel].effect_value;
-                player->tick_duration = player_calc_tick_duration(player->bpm, player->sample_rate);
+        PatternData* data = track.getData();
+        
+        if (player.getCurrentTick() == 0) {
+             if (data->getEffectValue() >= 0x20) {
+                 player.setBpm(data->getEffectValue());
+                 player.calcTickDuration();
              }
         }
     }
@@ -656,11 +773,10 @@ namespace vmp
     // protracker panning
     void EffectsS3M::XPanning(Player& player, Track& track) 
     {
-        if (player->current_tick == 0) {
-            int tmp = player->channels[channel].effect_value;
+        if (player.getCurrentTick() == 0) {
+            int tmp = track.getData()->getEffectValue();
             tmp = (tmp * 256) / 80;
-            //printf("%i\n", tmp);
-            player->channels[channel].panning = tmp;
+            track.setPanning(tmp);
         }
     }    
     
