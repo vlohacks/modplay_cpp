@@ -46,8 +46,10 @@ namespace vmp
             EffectsMOD::patternBreak,
             EffectsMOD::special,
             EffectsMOD::setSpeed
-            
     }))
+    {}
+    
+    EffectsMOD::~EffectsMOD()
     {}
     
     

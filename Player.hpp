@@ -29,6 +29,8 @@
 #include "Track.hpp"
 #include "SampleConv.hpp"
 #include "Effects.hpp"
+#include "EffectsMOD.hpp"
+#include <memory>
 //#include "EffectsMOD.hpp"
 
 namespace vmp 
@@ -78,7 +80,7 @@ namespace vmp
         
     private:
         Module* module;
-        Effects* effects;
+        std::shared_ptr<Effects> effects;
         vector<Track> tracks;
         u32 sampleRate;
         resampling_t resampling;

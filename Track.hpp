@@ -57,6 +57,8 @@ namespace vmp
         int tremoloState;
         u8 tremoloWaveform;
         
+        int tremorState;
+        
         u16 destPeriod;
         u8 destInstrument;
         u8 patternLoopPosition;
@@ -106,6 +108,9 @@ namespace vmp
     
     u8 getTremoloWaveform() const            { return tremoloWaveform; }
     void setTremoloWaveform(u8 tremolo_waveform) { tremoloWaveform = tremolo_waveform; }
+    
+    int getTremorState() const              { return tremorState; }
+    void setTremorState(int tremor_state)   { tremorState = tremor_state; }
     
     
     u16 getDestPeriod() const                { return destPeriod; }

@@ -58,8 +58,8 @@ int main(int argc, char** argv)
         vmp::OutputOptionsAlsa oo;
         
         //vmp::OutputRaw o(&player);
-        vmp::OutputAlsa o(oo, &player);
-        //vmp::OutputBenchmark o(&player);
+        //vmp::OutputAlsa o(oo, &player);
+        vmp::OutputBenchmark o(&player);
         
         
         player.setLoop(true);

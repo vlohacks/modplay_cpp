@@ -19,6 +19,7 @@ namespace vmp
         , vibratoWaveform(0)
         , tremoloState(0)
         , tremoloWaveform(0)
+        , tremorState(0)
         , samplePos(0)
         , sampleStep(0)
         , effectStorage(128)

@@ -32,16 +32,16 @@ namespace vmp
 {
     Player::Player(Module* m, u32 sample_rate)
         : sampleRate(sample_rate)
-        , resampling(RESAMPLING_LINEAR)
-        , effects(0)
+        , resampling(RESAMPLING_NONE)
+//        , effects(0)
     {
         setModule(m);
     }
     
     Player::Player(u32 sample_rate)
         : sampleRate(sample_rate)
-        , resampling(RESAMPLING_LINEAR)
-        , effects(0)
+        , resampling(RESAMPLING_NONE)
+//        , effects(0)
     {}
     
     Player::~Player()
@@ -194,7 +194,7 @@ namespace vmp
                     effects->newRowAction(*this, tracks[i]);
                                         
                 }
-                //fprintf(stderr, "\n");
+                //fprintf(stderr, "\n");   
                 
                 
 
@@ -296,13 +296,14 @@ namespace vmp
         tracks = vector<Track>(module->getNumTracks());
         
         reset();
-                
-        if (effects) 
-            delete effects;
+
+        
+        //if (effects) 
+        //    delete effects;
         
         switch (module->getModuleType()) {
             case Module::MODULE_TYPE_MOD:
-                effects = new EffectsMOD();
+                effects = std::shared_ptr<Effects>(new EffectsMOD());
                 break;
         }
         

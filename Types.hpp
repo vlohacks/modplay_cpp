@@ -29,6 +29,7 @@
 
 #include <cstdint>
 #include <vector>
+#include <array>
 #include <string>
 #include "Config.hpp"
 
@@ -45,6 +46,7 @@ namespace vmp {
     
     /* containers */
     template<typename T> using vector = std::vector<T>;
+    //template<typename T> using array = std::array<T>;
     //template using string = std::string;
     typedef std::string string;
     
