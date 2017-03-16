@@ -21,14 +21,22 @@ namespace vmp
     class ModuleS3M : public Module
     {
     private:
-        u32 flags;
-        
+        u16 version;
+        u8  initialMasterVolume;
     public:
         
         ModuleS3M();
         
         bool loadCheck(Io& io);
-        void load(Io& io);   
+        void load(Io& io);
+        
+        enum class S3MFlags : u32 {
+            ST2VIBRATO         = (1<<0),
+            ST2TEMPO           = (1<<1),
+            AMIGASLIDES        = (1<<2),
+            AMIGALIMITS        = (1<<4),
+            ST30VOLUMESLIDES   = (1<<6)
+        };
     };
 }
 

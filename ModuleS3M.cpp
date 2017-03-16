@@ -6,6 +6,7 @@
 
 #include "ModuleS3M.hpp"
 #include <cstring>
+#include <vector>
 
 namespace vmp
 {
@@ -39,6 +40,7 @@ namespace vmp
         u16     tmp_u16;
         u8      tmp_u8;
         u8      channel_map[32];
+        u8      default_panning;
         u32     sample_memseg;
         char    tmp_name[32];
 
@@ -65,77 +67,93 @@ namespace vmp
 
         // read flags
         tmp_u16 = io.readU16le();
-        module->module_info.flags_s3m.st2vibrato            = tmp_u16 & 1;
-        module->module_info.flags_s3m.st2tempo              = tmp_u16 & 2;
-        module->module_info.flags_s3m.amigaslides           = tmp_u16 & 4;
-        // TODO left out "0vol optimizations"
-        module->module_info.flags_s3m.amigalimits           = tmp_u16 & 16;
-        // TODO left out "filter/sfx"
-        module->module_info.flags_s3m.st30volumeslides      = tmp_u16 & 64;
+        if (tmp_u16 & S3MFlags::ST2VIBRATO > 0)
+            setFlag(S3MFlags::ST2VIBRATO);
+        
+        if (tmp_u16 & S3MFlags::ST2TEMPO > 0)
+            setFlag(S3MFlags::ST2TEMPO);
+        
+        if (tmp_u16 & S3MFlags::AMIGASLIDES > 0)
+            setFlag(S3MFlags::AMIGASLIDES);
+        
+        // TODO left out "0vol optimizations"   (8)
+        
+        if (tmp_u16 & S3MFlags::AMIGALIMITS > 0)
+            setFlag(S3MFlags::AMIGALIMITS);
+        
+        // TODO left out "filter/sfx"  (32)
+        if (tmp_u16 & S3MFlags::ST30VOLUMESLIDES > 0)
+            setFlag(S3MFlags::ST30VOLUMESLIDES);
+        
+        // read version
+        version = io.readU16le();
 
-        /* read version */
-        r = h->read(&tmp_u16, sizeof(uint16_t), 1, h);
-        module->module_info.flags_s3m.st3_version           = tmp_u16;
-
-        /* st3 3.0 suffers from bug where volume slides start also on tick 0.
+        
+        /* Set version specific flags:
+         * st3 3.0 suffers from bug where volume slides start also on tick 0.
          * Enable crippled volume slides to be compatible with files created with
          * this buggy version
          * This flag gets checked in effects */
-        if (module->module_info.flags_s3m.st3_version == 0x1300)
-            module->module_info.flags_s3m.st30volumeslides = 1;
+        if (version == 0x1300)
+            setFlag(S3MFlags::ST30VOLUMESLIDES);
 
-        /* TODO: currently ignoring sample format, as it is always unsigned */
+        // TODO: currently ignoring sample format, as it is always unsigned
 
-        /* read initial speed, tempo, master volume */
-        h->seek(h, 0x31, io_seek_set);    
-        r = h->read(&(module->initial_speed), sizeof(uint8_t), 1, h);
-        r = h->read(&(module->initial_bpm), sizeof(uint8_t), 1, h);
-        r = h->read(&(module->initial_master_volume), sizeof(uint8_t), 1, h);
-        h->seek(h, 0x35, io_seek_set); // skip ultraclick stuff... gus is dead.
-        r = h->read(&(module->module_info.flags_s3m.default_panning), sizeof(uint8_t), 1, h);
-
+        io.seek(0x31, Io::IO_SEEK_SET);
+        initialSpeed = io.readU8();
+        initialBpm = io.readU8();
+        initialMasterVolume = io.readU8();
+        
+        // skip ultraclick stuff... gus is dead.
+        io.seek(0x35, Io::IO_SEEK_SET); 
+        
+        default_panning = io.readU8();
+        
         /* TODO: we currently ignore GLOBAL_VOLUME .. maybe it will turn out that
          it is a good idea to deal with it... */
 
-        /* initialize channel map */
+        /* initialize channel map. Since individual channels can be disabled in
+         * ST3 (also in between enabled channels), active channels need to be 
+         * mapped to their absolute channel num. The loader just skips disabled
+         * channels
+         */
         for (i = 0; i < 32; i++)
             channel_map[i] = 255;
 
-        /* read channel infos */
-        h->seek(h, 0x40, io_seek_set);
-        module->num_channels = 0;
+        // read channel infos
+        io.seek(0x40, Io::IO_SEEK_SET);
+        numTracks = 0;
+        
         for (i = 0; i < 32; i++) {
-
-            r = h->read(&tmp_u8, sizeof(uint8_t), 1, h);
-            // channel enabled?
+            tmp_u8 = io.readU8();
+            // value < 16 means that this channel is enabled
             if (tmp_u8 < 16) {
-                channel_map[i] = module->num_channels;
-
+                channel_map[i] = numTracks;
+                
                 if (tmp_u8 <= 7) 
-                    module->initial_panning[module->num_channels] = 0x33;
+                    initialPanning.push_back(0x33);
                 else 
-                    module->initial_panning[module->num_channels] = 0xcc;
+                    initialPanning.push_back(0xcc);
 
-                //printf("== %i == %i ==\n", module->num_channels, tmp_u8);
-
-                module->num_channels ++;
+                numTracks++;
             }
         }
 
         /* read orders and determine REAL number of patterns FS3MDOC.TXT says we
-         * cannot rely on what the header data says */
+         * cannot rely on what the header data says 
+         */
         j = 0;
-        module->num_patterns = 0;
-        for (i = 0; i < module->num_orders; i++) {
-            r = h->read(&tmp_u8, sizeof(uint8_t), 1, h);
+        numPatterns = 0;
+        for (i = 0; i < numOrders; i++) {
+            tmp_u8 = io.readU8();
             if (tmp_u8 < 254) {
-                module->orders[j++] = tmp_u8;
-                if (tmp_u8 > module->num_patterns) 
-                    module->num_patterns = tmp_u8;
+                orders.push_back(tmp_u8);
+                if (tmp_u8 > numPatterns) 
+                    numPatterns = tmp_u8;
             }
         }
-        module->num_orders = j;
-        module->num_patterns++;
+        numOrders = orders.size();
+        numPatterns++;
 
         /*
         printf ("num orders: %i, num_patterns: %i, num_channels: %i\n", module->num_orders, module->num_patterns, module->num_channels);
@@ -143,7 +161,7 @@ namespace vmp
             printf(" %i\n", module->orders[i]);
          */
 
-        /* read sample and patter parapointers */
+        /* read sample and pattern parapointers */
         parapointer_sample = (uint16_t *)malloc(sizeof(uint16_t) * module->num_samples);
         parapointer_pattern = (uint16_t *)malloc(sizeof(uint16_t) * num_patterns_internal);
 
@@ -152,25 +170,18 @@ namespace vmp
 
 
         /* read default pan positions 
-         * TODO: This does not work as described in FS3MDOC: Sometimes there are
-         * default pan positions all with 0 leaving the S3M panned completely to 
-         * the left.
-         * so we leave it out for now. Further investigation needed here
+         * TODO: This never worked as described in FS3MDOC: S3Ms were panned 
+         * completely to 0 (left). Therefore it has been disabled, further
+         * investigation is needed here.
          */
-
-
-        if (module->module_info.flags_s3m.default_panning == 0xfc) {
-            //fread (module->initial_panning, sizeof(uint8_t), 32, f);
-
+        if (default_panning == 0xfc) {
             for (i = 0; i < 32; i++)  {
-                h->read(&tmp_u8, sizeof(uint8_t), 1, h);
+                tmp_u8 = io.readU8();
                 if (tmp_u8 & 16) {
                     tmp_u8 &= 0x0f;
-                    //module->initial_panning[i] = (tmp_u8 << 4) | ((tmp_u8 << 1) + (tmp_u8>6?1:0));
+                    //TODO set initial Panning as soon I know how this works
                 }
-    //            printf("===>>>%i<<< ===\n", tmp_u8);
             }
-
         }
 
         /* flag in the master volume byte indicates 
