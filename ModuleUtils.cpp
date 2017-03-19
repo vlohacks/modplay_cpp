@@ -49,10 +49,15 @@ namespace vmp
                     else
                         fprintf(stderr, ".. ");
                     
-                    if (d.hasEffectCmd())
-                        fprintf(stderr, "%01x", d.getEffectCmd());
+                    if (d.hasVolume())
+                        fprintf(stderr, "%02d ", d.getVolume());
                     else
-                        fprintf(stderr, ".");
+                        fprintf(stderr, ".. ");
+                    
+                    if (d.hasEffectCmd())
+                        fprintf(stderr, "%02x", d.getEffectCmd());
+                    else
+                        fprintf(stderr, "..");
                     
                     if (d.hasEffectCmd())
                         fprintf(stderr, "%02x|", d.getEffectValue());

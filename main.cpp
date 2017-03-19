@@ -23,6 +23,7 @@
 
 #include "Pattern.hpp"
 #include "ModuleMOD.hpp"
+#include "ModuleS3M.hpp"
 #include "ModuleUtils.hpp"
 #include "Player.hpp"
 #include "OutputRaw.hpp"
@@ -43,14 +44,15 @@ int main(int argc, char** argv)
       
         f.seek(0, vmp::Io::IO_SEEK_SET);
         
-        vmp::ModuleMOD mod;
+        vmp::ModuleS3M mod;
         mod.load(f);
         //vmp::ModuleUtils::dumpModule(mod);
-        
+        /*
         for (int i = 0; i < mod.getNumSamples(); i++) {
             vmp::Sample& s = mod.getSample(i);
             printf("%-32s l: %06d ll: %06d, ls: %06d le: %06d\n", s.getName().c_str(), s.getLength(), s.getLoopLength(), s.getLoopStart(), s.getLoopEnd());
         }
+        */
         
         vmp::Player player(44100);
         player.setModule(&mod);
@@ -58,8 +60,8 @@ int main(int argc, char** argv)
         vmp::OutputOptionsAlsa oo;
         
         //vmp::OutputRaw o(&player);
-        //vmp::OutputAlsa o(oo, &player);
-        vmp::OutputBenchmark o(&player);
+        vmp::OutputAlsa o(oo, &player);
+        //vmp::OutputBenchmark o(&player);
         
         
         player.setLoop(true);

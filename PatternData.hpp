@@ -76,6 +76,7 @@ namespace vmp
         void    clearVolume();
         void    clearEffectCmd();
         void    clearEffectValue();
+        void    clearAll();
     };
 }
 

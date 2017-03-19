@@ -48,6 +48,8 @@ namespace vmp
         u8 initialSpeed;
         u8 initialBpm;
         
+        u32 flags;
+        
         string songTitle;
         vector<Pattern> patterns;
         vector<Sample> samples;
@@ -79,6 +81,10 @@ namespace vmp
         u8              getInitialSpeed() const                         { return initialSpeed; }
         u8              getInitialBpm() const                           { return initialBpm; }
         u8              getInitialPanning(u8 track_no) const            { return initialPanning[track_no]; }
+        
+        bool            getFlag(const u32 flag) const                   { return flags & flag; }
+        void            setFlag(const u32 flag)                         { flags |= flag; }
+        void            clearFlag(const u32 flag)                       { flags &= ~flag; }
     
     protected:
         const module_type_t moduleType;

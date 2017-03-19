@@ -25,6 +25,9 @@ namespace vmp
         : flags(0)
         , effectCmd(0)
         , effectValue(0)
+        , note(0)
+        , instrument(0)
+        , volume(0)
     {}
     
     PatternData::~PatternData() {}
@@ -64,4 +67,5 @@ namespace vmp
     void PatternData::clearVolume()         { flags &= ~FLAG_VOLUME; }
     void PatternData::clearEffectCmd()      { flags &= ~FLAG_EFFECT_CMD; }
     void PatternData::clearEffectValue()    { flags &= ~FLAG_EFFECT_VALUE; }
+    void PatternData::clearAll()            { flags = 0; }
 }

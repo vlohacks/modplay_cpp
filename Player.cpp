@@ -24,6 +24,7 @@
 #include "Player.hpp"
 #include "Track.hpp"
 #include "EffectsMOD.hpp"
+#include "EffectsS3M.hpp"
 #include "DefsMOD.hpp"
 #include "ModuleUtils.hpp"
 #include <cmath>
@@ -186,12 +187,15 @@ namespace vmp
                 for (i = 0; i < module->getNumTracks(); i++) {
                     tracks[i].setData(&module->getData(currentPattern, currentRow, i));
                     
+                    //if (i > 5)
                     //ModuleUtils::dumpData(module->getData(currentPattern, currentRow, i));
                     //player->channels[k].effect_num = current_data->effect_num;
                     //player->channels[k].effect_value = current_data->effect_value;
 
 //                    player->newrow_action(player, current_data, k);
                     effects->newRowAction(*this, tracks[i]);
+                    //if (i > 5)
+                    //fprintf(stderr,  "==%02d==", tracks[i].getInstrument());
                                         
                 }
                 //fprintf(stderr, "\n");   
@@ -304,6 +308,9 @@ namespace vmp
         switch (module->getModuleType()) {
             case Module::MODULE_TYPE_MOD:
                 effects = std::shared_ptr<Effects>(new EffectsMOD());
+                break;
+            case Module::MODULE_TYPE_S3M:
+                effects = std::shared_ptr<Effects>(new EffectsS3M());
                 break;
         }
         

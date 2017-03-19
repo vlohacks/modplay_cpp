@@ -6,7 +6,7 @@ find_package(ALSA)
 find_package(Qt5Core)
 find_package(Qt5Widgets)
 
-add_definitions(-std=c++11 -O3)
+add_definitions(-std=c++11 -O3 -g)
 file(GLOB SOURCES "*.cpp")
 
 add_executable(vmp ${SOURCES})

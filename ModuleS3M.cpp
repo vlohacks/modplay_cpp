@@ -27,7 +27,7 @@ namespace vmp
         io.read(signature, 4, 1);
         io.seek(savedPos, Io::IO_SEEK_SET);
 
-        if (memcmp(signature, "SCRM", 4))
+        if (!memcmp(signature, "SCRM", 4))
             return true;
 
         return false;
@@ -45,25 +45,25 @@ namespace vmp
         char    tmp_name[32];
 
         u16 num_patterns_internal;
-        uint16_t * parapointer_pattern;
-        uint16_t * parapointer_sample;
+        vector<u16> parapointer_pattern;
+        vector<u16> parapointer_sample;
 
         // check if we really deal with a S3M file. If not, bail out
         if (!loadCheck(io)) {
             // TODO throw some Exception
             return;
         }
-
+        
         // read the song name
         io.seek(0, Io::IO_SEEK_SET);
-        r = io.read(tmp_name, 1, 28);
+        io.read(tmp_name, 1, 28);
         songTitle = string(tmp_name);
         
         // read num_orders, num_samples, num_patterns
         io.seek(0x20, Io::IO_SEEK_SET);
         numOrders = io.readU16le();
         numSamples = io.readU16le();
-        numPatterns = io.readU16le();
+        num_patterns_internal = io.readU16le();
 
         // read flags
         tmp_u16 = io.readU16le();
@@ -139,8 +139,8 @@ namespace vmp
             }
         }
 
-        /* read orders and determine REAL number of patterns FS3MDOC.TXT says we
-         * cannot rely on what the header data says 
+        /* read orders and determine REAL number of patterns. FS3MDOC.TXT says 
+         * we cannot rely on what the header data says 
          */
         j = 0;
         numPatterns = 0;
@@ -161,12 +161,14 @@ namespace vmp
             printf(" %i\n", module->orders[i]);
          */
 
-        /* read sample and pattern parapointers */
-        parapointer_sample = (uint16_t *)malloc(sizeof(uint16_t) * module->num_samples);
-        parapointer_pattern = (uint16_t *)malloc(sizeof(uint16_t) * num_patterns_internal);
+        /* read sample and pattern parapointers 
+         * "Parapointers" are just offsets to the specific items in the file
+         */
+        parapointer_sample.resize(numSamples);
+        parapointer_pattern.resize(num_patterns_internal);
 
-        h->read(parapointer_sample, sizeof(uint16_t), module->num_samples, h);
-        h->read(parapointer_pattern, sizeof(uint16_t), num_patterns_internal, h);
+        io.read(parapointer_sample.data(), sizeof(u16), numSamples);
+        io.read(parapointer_pattern.data(), sizeof(u16), num_patterns_internal);
 
 
         /* read default pan positions 
@@ -179,65 +181,64 @@ namespace vmp
                 tmp_u8 = io.readU8();
                 if (tmp_u8 & 16) {
                     tmp_u8 &= 0x0f;
-                    //TODO set initial Panning as soon I know how this works
+                    // TODO set initial Panning to tmp_u8 as soon I know how this works
                 }
             }
         }
 
         /* flag in the master volume byte indicates 
-         * whether the song is stereo or mono */
-        if ((module->initial_master_volume & 128) == 0) {
+         * whether the song is stereo or mono 
+         */
+        if ((initialMasterVolume & 128) == 0) {
             /* make the song mono */
-            for (i=0; i<32; i++) 
-                module->initial_panning[i] = 0x7f;
+            for (i=0; i<initialPanning.size(); i++) 
+                initialPanning[i] = 0x7f;
 
-            module->module_info.flags_s3m.mono = 1;
-        } else {
-            module->module_info.flags_s3m.mono = 0;
+            setFlag(S3MFlags::MONO);
         }
 
-        module->samples = malloc(sizeof(module_sample_t) * module->num_samples) ;
-        /* read sample headers (instruments) */
-        for (i = 0; i < module->num_samples; i++) {
-            uint8_t sample_type;
-            uint8_t sample_16bit;
-            /* we use c2spd - initialize finetune with 0 */
-            module->samples[i].header.finetune = 0;
-
-            h->seek(h, parapointer_sample[i] << 4, io_seek_set);
-
-            /* read sample type */
-            h->read(&sample_type, sizeof(uint8_t), 1, h);
+        
+        //samples = vector<Sample>(numSamples);
+        // read sample headers (instruments)
+        for (i = 0; i < numSamples; i++) {
+            u8 sample_type;
+            bool sample_16bit;
+            u32 ls, le;
+            
+            samples.push_back(Sample());
+            Sample& currentSample = samples.back();
+            
+            io.seek(parapointer_sample[i] << 4, Io::IO_SEEK_SET);
+            // read sample type
+            sample_type = io.readU8();
 
             /* skip the "dos filename" 
              * FS3MDOC.TXT is wrong here, it states this are 13 chars,
              * actually it's 12 chars according to ST3 TECH.DOC
              */
-            h->seek(h, 12, io_seek_cur);
+            io.seek(12, Io::IO_SEEK_CUR);
 
-            /* read sample "memseg" - which is stored in 3 bytes */
-            h->read(&tmp_u8, sizeof(uint8_t), 1, h);
-            h->read(&tmp_u16, sizeof(uint16_t), 1, h);
+            // read sample "memseg" - which is stored in 3 bytes
+            tmp_u8 = io.readU8();
+            tmp_u16 = io.readU16le();
             sample_memseg = ((uint32_t)tmp_u8 << 16) + tmp_u16;
+            
+            // sample length
+            tmp_u32 = io.readU32le();
+            currentSample.setLength(tmp_u32);
+            
+            // loop start (upper 2 bytes might contain garbage)
+            ls = io.readU32le() & 0xffff;
 
-            /* sample length */
-            h->read(&tmp_u32, sizeof(uint32_t), 1, h);
-            module->samples[i].header.length = tmp_u32 & 0xffff;
+            // loop end (actually the first sample NOT being played in loop)
+            le = io.readU32le() & 0xffff;
+            
+            // volume
+            tmp_u8 = io.readU8();
+            currentSample.setDefaultVolume(tmp_u8);
 
-            /* loop start */
-            h->read(&tmp_u32, sizeof(uint32_t), 1, h);
-            module->samples[i].header.loop_start = tmp_u32 & 0xffff;
-
-            /* loop end */
-            h->read(&tmp_u32, sizeof(uint32_t), 1, h);
-            module->samples[i].header.loop_end = (tmp_u32 & 0xffff) - 1;
-            module->samples[i].header.loop_length = (tmp_u32 & 0xffff) - module->samples[i].header.loop_start;
-
-            /* volume */
-            h->read(&(module->samples[i].header.volume), sizeof(uint8_t), 1, h);
-
-            /* Skip unused byte and packing scheme */
-            h->seek(h, 2, io_seek_cur);
+            // Skip unused byte and packing scheme
+            io.seek(2, Io::IO_SEEK_CUR);
 
             /* flags 
              * (1)          = loop
@@ -246,132 +247,116 @@ namespace vmp
              *              used by some Tracks of the UNREAL soundtrack
              *              (The EPIC shooter game, not the FC demo ;-))
              */
-            h->read(&tmp_u8, sizeof(uint8_t), 1, h);
-            module->samples[i].header.loop_enabled = tmp_u8 & 1;    // loop flag
-            sample_16bit = tmp_u8 & (1<<2);
+            tmp_u8 = io.readU8();
+            currentSample.setLoop(tmp_u8 & 1, ls, le - 1) ;    
+            sample_16bit = ((tmp_u8 & (1<<2)) != 0) ? true : false;
 
-            /* c2spd */
-            h->read(&tmp_u32, sizeof(uint32_t), 1, h);
-            module->samples[i].header.c2spd = tmp_u32 & 0xffff;
+            // c2spd
+            tmp_u32 = io.readU32le() & 0xffff;
+            currentSample.setMiddleCSpeed(tmp_u32);
+            
+            // Skip unused bytes
+            io.seek(12, Io::IO_SEEK_CUR);
 
-            /* Skip unused bytes */
-            h->seek(h, 12, io_seek_cur);
-
-            /* sample name */
-            h->read(module->samples[i].header.name, 1, 28, h);
+            // sample name
+            io.read(tmp_name, 1, 28);
+            currentSample.setName(string(tmp_name));
 
             /* if we deal with a adlib instrument or a empty sample slot, continue
              * without loading data
              */
-            module->samples[i].data = 0;
             if (sample_type != 1) {
                 if (sample_type > 1)
                     fprintf(stderr, __FILE__ " sample %i - unsupported type: %i (most likely ADLIB)\n", i ,sample_type);
                 continue;
             }
 
-            /* fetch sample data */
-            module->samples[i].data = malloc(module->samples[i].header.length * sizeof(sample_t));
-            h->seek(h, sample_memseg << 4, io_seek_set);
-
-            for (j=0; j<module->samples[i].header.length; j++) {
-                if (sample_16bit) {
-                    h->read(&tmp_u16, 2, 1, h);
-                    tmp_u16 ^= 32768;
-                    module->samples[i].data[j] = sample_from_s16((int16_t)tmp_u16);
-                } else {
-                    h->read(&tmp_u8, 1, 1, h);
-                    /* we use signed samples interally */
-                    tmp_u8 ^= 128;
-                    module->samples[i].data[j] = sample_from_s8((int8_t)tmp_u8);
-                }
-            }
-
+            // fetch sample data
+            io.seek(sample_memseg << 4, Io::IO_SEEK_SET);
+            if (sample_16bit)
+                currentSample.loadIo(io, Sample::PCM_U16_LE);
+            else
+                currentSample.loadIo(io, Sample::PCM_U8);
         }
 
-        /* allocate patterns */
-        module->patterns = (module_pattern_t *)malloc(sizeof(module_pattern_t) * module->num_patterns /*num_patterns_internal*/);
-        for (i = 0; i < module->num_patterns /*num_patterns_internal*/; i++) 
-            module->patterns[i].rows = 0;
+                       
+        // read pattern data
+        u8 packed_flags;
+        u8 channel_num;
+        u16 packed_size;
+        PatternData tmp_data;
 
-        /* read pattern data */
-        int pattern_nr = 0;
-        uint8_t packed_flags;
-        uint8_t channel_num;
-        uint16_t packed_size;
-        module_pattern_data_t tmp_data;
-
-        for (i = 0; i < module->num_patterns /*num_patterns_internal*/; i++) {
-            h->seek(h, parapointer_pattern[i] << 4, io_seek_set);
-
-            h->read(&packed_size, sizeof(uint16_t), 1, h);
-
-            /* s3m always has 64 rows per pattern */
-            module->patterns[pattern_nr].rows = (module_pattern_row_t *)malloc(sizeof(module_pattern_row_t) * 64);
-            module->patterns[pattern_nr].num_rows = 64;
-
-            /* initialize all data with empty values */
-            for (j = 0; j < 64; j++) {
-                module->patterns[pattern_nr].rows[j].data = (module_pattern_data_t *)malloc(sizeof(module_pattern_data_t) * module->num_channels);
-                for (k = 0; k < module->num_channels; k++) {
-                    memset(&(module->patterns[pattern_nr].rows[j].data[k]), 0, sizeof(module_pattern_data_t));
-                    module->patterns[pattern_nr].rows[j].data[k].period_index = -1;
-                    module->patterns[pattern_nr].rows[j].data[k].volume = -1;
-                }
-            }
+        for (i = 0; i < numPatterns; i++) {
+            
+            // S3M patterns always have 64 rows
+            patterns.push_back(Pattern(64, numTracks));
+            Pattern& currentPattern = patterns.back();
+            
+            io.seek(parapointer_pattern[i] << 4, Io::IO_SEEK_SET);
+            packed_size = io.readU16le();
 
             for (j = 0; j < 64; j++) {
-
+                
                 do {
-                    memset(&tmp_data, 0, sizeof(module_pattern_data_t));
-                    tmp_data.period_index = -1;
-                    tmp_data.volume = -1;
-
-                    h->read(&packed_flags, sizeof(uint8_t), 1, h);
-
+                    packed_flags = io.readU8();
+                    tmp_data.clearAll();
+                    
                     if (packed_flags > 0) {
-
                         channel_num = packed_flags & 31;
 
+                        // check if data conains note and sample information
                         if (packed_flags & 32) {
-                            h->read(&(tmp_u8), 1, 1, h);
-                            if (tmp_u8 == 255)
-                                tmp_data.period_index = -1;
-                            else if (tmp_u8 == 254)
-                                tmp_data.period_index = 254;
-                            else //low nibble = note, high nibble = octave
-                                tmp_data.period_index = (int)(((tmp_u8 >> 4) * 12) + (tmp_u8 & 0x0f));
+                            tmp_u8 = io.readU8();
+                            if (tmp_u8 == 255)                      // 255 = no note information
+                                tmp_data.clearNote();
+                            else if (tmp_u8 == 254)                 // 254 = note off command (the ^^^ thing in ST3)
+                                tmp_data.setNote(254);
+                            else                                    //regular note, low nibble = note, high nibble = octave
+                                tmp_data.setNote( ((tmp_u8 >> 4) * 12) + (tmp_u8 & 0x0f) );
 
-                            h->read(&(tmp_data.sample_num), 1, 1, h);
+                            tmp_u8 = io.readU8();
+                            if (tmp_u8 > 0)
+                                tmp_data.setInstrument(tmp_u8 - 1);
                         }
 
-                        if (packed_flags & 64)
-                            h->read(&tmp_data.volume, 1, 1, h);
+                        // check if data contains volume information
+                        if (packed_flags & 64) {
+                            tmp_u8 = io.readU8();
+                            tmp_data.setVolume(tmp_u8);
+                        }
 
+                        // check if data contains effect information
                         if (packed_flags & 128) {
-                            h->read(&tmp_data.effect_num, 1, 1, h);
-                            h->read(&tmp_data.effect_value, 1, 1, h);
+                            tmp_u8 = io.readU8();
+                            tmp_data.setEffectCmd(tmp_u8);
+                            tmp_u8 = io.readU8();
+                            tmp_data.setEffectValue(tmp_u8);
                         }
 
                         if (channel_map[channel_num] < 255) {
-                            //printf("r=%i, cn=%i, ch=%i\n", j, channel_num, channel_map[channel_num]);
-                            memcpy(&(module->patterns[pattern_nr].rows[j].data[channel_map[channel_num]]), &tmp_data, sizeof(module_pattern_data_t));
+                            PatternData& currentData = currentPattern.getRow(j)[channel_num];
+                            if (tmp_data.hasNote())
+                                currentData.setNote(tmp_data.getNote());
+                            
+                            if (tmp_data.hasInstrument())
+                                currentData.setInstrument(tmp_data.getInstrument());
+                            
+                            if (tmp_data.hasVolume())
+                                currentData.setVolume(tmp_data.getVolume());
+                            
+                            if (tmp_data.hasEffectCmd())
+                                currentData.setEffectCmd(tmp_data.getEffectCmd());
+                            
+                            if (tmp_data.hasEffectValue())
+                                currentData.setEffectValue(tmp_data.getEffectValue());
+                            
+                            //memcpy(&(module->patterns[pattern_nr].rows[j].data[channel_map[channel_num]]), &tmp_data, sizeof(module_pattern_data_t));
                         }                    
                     }
 
                 } while (packed_flags);
             }
-            pattern_nr++;
         }
-
-
-        /* free memory temporary occupied by parapointers */
-        free (parapointer_sample);
-        free (parapointer_pattern);
-
-        //module_dump(module, stdout);
-        module->song_message = 0;
-        return module;
         
     }
     

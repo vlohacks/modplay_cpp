@@ -39,15 +39,18 @@ namespace vmp {
     void Sample::loadIo(Io& io, const sample_data_t src_format, u32 count)
     {
         length = count;
+        data.resize(count);
+        int i = 0;
         while(count--) {
             switch (src_format) {
-                case PCM_S8:        data.push_back(sample_from_s8(io.readS8())); break;
-                case PCM_U8:        data.push_back(sample_from_u8(io.readS8())); break;
-                case PCM_S16_LE:    data.push_back(sample_from_s16(io.readS16le())); break;
-                case PCM_S16_BE:    data.push_back(sample_from_s16(io.readS16be())); break;
-                case PCM_U16_LE:    data.push_back(sample_from_u16(io.readU16le())); break;
-                case PCM_U16_BE:    data.push_back(sample_from_u16(io.readU16be())); break;
+                case PCM_S8:        data[i] = (sample_from_s8(io.readS8())); break;
+                case PCM_U8:        data[i] = (sample_from_u8(io.readS8())); break;
+                case PCM_S16_LE:    data[i] = (sample_from_s16(io.readS16le())); break;
+                case PCM_S16_BE:    data[i] = (sample_from_s16(io.readS16be())); break;
+                case PCM_U16_LE:    data[i] = (sample_from_u16(io.readU16le())); break;
+                case PCM_U16_BE:    data[i] = (sample_from_u16(io.readU16be())); break;
             }
+            i++;
         }
         haveData = true;
     }
@@ -55,15 +58,16 @@ namespace vmp {
     void Sample::loadPtr(const void* src_data, const sample_data_t src_format, u32 count)
     {
         length = count;
+        data.resize(count);
         int i = 0;
         while(count--) {
             switch (src_format) {
-                case PCM_S8:        data.push_back(sample_from_s8(static_cast<const s8*>(src_data)[i])); break;
-                case PCM_U8:        data.push_back(sample_from_u8(static_cast<const u8*>(src_data)[i])); break;
-                case PCM_S16_LE:    data.push_back(sample_from_s16(ByteSex::fromU16le(static_cast<const s16*>(src_data)[i]))); break;
-                case PCM_S16_BE:    data.push_back(sample_from_s16(ByteSex::fromU16be(static_cast<const s16*>(src_data)[i]))); break;
-                case PCM_U16_LE:    data.push_back(sample_from_u16(ByteSex::fromU16le(static_cast<const u16*>(src_data)[i]))); break;
-                case PCM_U16_BE:    data.push_back(sample_from_u16(ByteSex::fromU16be(static_cast<const u16*>(src_data)[i]))); break;
+                case PCM_S8:        data[i] = (sample_from_s8(static_cast<const s8*>(src_data)[i])); break;
+                case PCM_U8:        data[i] = (sample_from_u8(static_cast<const u8*>(src_data)[i])); break;
+                case PCM_S16_LE:    data[i] = (sample_from_s16(ByteSex::fromU16le(static_cast<const s16*>(src_data)[i]))); break;
+                case PCM_S16_BE:    data[i] = (sample_from_s16(ByteSex::fromU16be(static_cast<const s16*>(src_data)[i]))); break;
+                case PCM_U16_LE:    data[i] = (sample_from_u16(ByteSex::fromU16le(static_cast<const u16*>(src_data)[i]))); break;
+                case PCM_U16_BE:    data[i] = (sample_from_u16(ByteSex::fromU16be(static_cast<const u16*>(src_data)[i]))); break;
             }
             i++;
         }

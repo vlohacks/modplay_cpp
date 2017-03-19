@@ -53,22 +53,11 @@ namespace vmp
 
         // special behaviour for sample / note delay, here the effect starts the sound
         if ((data->getEffectCmd() == 19) && (data->getEffectValueUpper() == 0xd)) {
-            /*if (data->hasNote()) {
-                    //player->channels[channel_num].dest_period = player->period_table[data->period_index];
-                track.setDestPeriod(EffectsS3M::getTunedPeriod(player, track, DefsS3M::periods[data->getNote()]));
-                track.setDestInstrument(data->getInstrument());
-                
-                    player->channels[channel_num].dest_period = effects_s3m_get_tuned_period(player, player->period_table[data->period_index], channel_num);
-                    player->channels[channel_num].dest_sample_num = data->sample_num;
-                    player->channels[channel_num].dest_volume = data->volume;
-            } else {
-                track.setDestPeriod(0);
-            }*/
             return;
         }
 
         // set sample
-        if (data->hasInstrument() > 0) {
+        if (data->hasInstrument()) {
             track.setInstrument(data->getInstrument());
             track.setVolume(player.getModule()->getSample(data->getInstrument()).getDefaultVolume());
         }
@@ -80,7 +69,7 @@ namespace vmp
 
         // set period (note)
         if (data->hasNote()) {
-
+            
             // reset vibrato
             if (track.getVibratoWaveform() < 4)
                 track.setVibratoState(0);
@@ -89,7 +78,7 @@ namespace vmp
             if (track.getTremoloWaveform() < 4)
                 track.setTremoloState(0);
             
-            track.setInstrument(data->getInstrument());
+            //track.setInstrument(data->getInstrument());
             if (data->getNote() == 254) {           // note off
                 track.setActive(false);
                 return;
@@ -98,10 +87,9 @@ namespace vmp
                 if (data->getEffectCmd() != 0x7) {
                     track.setDestPeriod(0);
                     if (!player.getPatternDelayActive()) {
-                        //player->channels[channel_num].period =  player->period_table[data->period_index];
+                        track.setActive(true);
                         track.setPeriod(EffectsS3M::getTunedPeriod(player, track, DefsS3M::periods[data->getNote()]));
                         track.setSamplePos(0);
-                        //player_channel_set_frequency(player, player->channels[channel_num].period, channel_num);
                     }
                 }
             }
@@ -131,13 +119,8 @@ namespace vmp
     
     u16 EffectsS3M::getTunedPeriod(Player& player, Track& track, const u16 basePeriod)
     {
-        //if (player->channels[channel].sample_num == 0)
-        //    return 1; was sollte das?????
         Sample& sample = player.getModule()->getSample(track.getInstrument());
         return (basePeriod * 8363) / sample.getMiddleCSpeed();
-
-        //module_sample_t * sample = &(player->module->samples[player->channels[channel].sample_num - 1]);
-        //return (base_period * 8363) / sample->header.c2spd;
     }
     
     
@@ -251,7 +234,7 @@ namespace vmp
         }
 
         if (track.recallEffect(5) < 0xe0) {
-            /* regular portamento */
+            // regular portamento
             tmp = static_cast<s32>(track.getPeriod()) + static_cast<s32>(track.recallEffect(5) << 2);
             track.setPeriod(tmp);
             EffectsS3M::setTrackFrequency(player, track, track.getPeriod());
@@ -288,7 +271,7 @@ namespace vmp
         }
 
         if (track.recallEffect(6) < 0xe0) {
-            /* regular portamento */
+            // regular portamento
             tmp = static_cast<s32>(track.getPeriod()) - static_cast<s32>(track.recallEffect(6) << 2);
             track.setPeriod(tmp);
             EffectsS3M::setTrackFrequency(player, track, track.getPeriod());
@@ -310,8 +293,8 @@ namespace vmp
             return;        
         }
 
-        if (!data->hasNote())
-            return;
+        //if (!data->hasNote())
+        //    return;
         
         if (track.getPeriod() > track.getDestPeriod()) {
             tmp = static_cast<s32>(track.getPeriod()) - static_cast<s32>(track.recallEffect(7) << 2);
@@ -320,7 +303,7 @@ namespace vmp
             track.setPeriod(tmp);
         } else if (track.getPeriod() < track.getDestPeriod()) {
             tmp = static_cast<s32>(track.getPeriod()) + static_cast<s32>(track.recallEffect(7) << 2);
-            if (tmp < track.getDestPeriod())
+            if (tmp > track.getDestPeriod())
                 tmp = track.getDestPeriod();
             track.setPeriod(tmp);
         }
@@ -494,7 +477,7 @@ namespace vmp
                 tmp = 64;
             track.setVolume(tmp);
         } else if (track.recallEffectUpper(11) == 0x00) {
-            tmp = static_cast<int>(track.getVolume()) - static_cast<int>(track.recallEffectUpper(11));
+            tmp = static_cast<int>(track.getVolume()) - static_cast<int>(track.recallEffectLower(11));
             if (tmp < 0)
                 tmp = 0;
             track.setVolume(tmp);
@@ -523,7 +506,7 @@ namespace vmp
                 track.setPeriod(tmp);
             } else if (track.getPeriod() < track.getDestPeriod()) {
                 tmp = static_cast<s32>(track.getPeriod()) + static_cast<s32>(track.recallEffect(7) << 2);
-                if (tmp < track.getDestPeriod())
+                if (tmp > track.getDestPeriod())
                     tmp = track.getDestPeriod();
                 track.setPeriod(tmp);
             }
@@ -537,7 +520,7 @@ namespace vmp
                 tmp = 64;
             track.setVolume(tmp);
         } else if (track.recallEffectUpper(12) == 0x00) {
-            tmp = static_cast<int>(track.getVolume()) - static_cast<int>(track.recallEffectUpper(12));
+            tmp = static_cast<int>(track.getVolume()) - static_cast<int>(track.recallEffectLower(12));
             if (tmp < 0)
                 tmp = 0;
             track.setVolume(tmp);
