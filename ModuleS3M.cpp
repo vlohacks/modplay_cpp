@@ -309,7 +309,7 @@ namespace vmp
                             tmp_u8 = io.readU8();
                             if (tmp_u8 == 255)                      // 255 = no note information
                                 tmp_data.clearNote();
-                            else if (tmp_u8 == 254)                 // 254 = note off command (the ^^^ thing in ST3)
+                            else if (tmp_u8 == 254)                 // 254 = note off command (the ^^^ thing in ST3) TODO: avoid magic value here
                                 tmp_data.setNote(254);
                             else                                    //regular note, low nibble = note, high nibble = octave
                                 tmp_data.setNote( ((tmp_u8 >> 4) * 12) + (tmp_u8 & 0x0f) );
@@ -349,8 +349,6 @@ namespace vmp
                             
                             if (tmp_data.hasEffectValue())
                                 currentData.setEffectValue(tmp_data.getEffectValue());
-                            
-                            //memcpy(&(module->patterns[pattern_nr].rows[j].data[channel_map[channel_num]]), &tmp_data, sizeof(module_pattern_data_t));
                         }                    
                     }
 

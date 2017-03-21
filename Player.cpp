@@ -34,7 +34,6 @@ namespace vmp
     Player::Player(Module* m, u32 sample_rate)
         : sampleRate(sample_rate)
         , resampling(RESAMPLING_NONE)
-//        , effects(0)
     {
         setModule(m);
     }
@@ -42,85 +41,21 @@ namespace vmp
     Player::Player(u32 sample_rate)
         : sampleRate(sample_rate)
         , resampling(RESAMPLING_NONE)
-//        , effects(0)
     {}
     
     Player::~Player()
     {}
     
-    bool Player::hasData() {
-        return haveData;
-    }
-    
-    u8 Player::getCurrentTick()
-    {
-        return currentTick;
-    }
-    
-    u8 Player::getCurrentOrder()
-    {
-        return currentOrder;
-    }
-    
-    u8 Player::getCurrentRow()
-    {
-        return currentRow;
-    }
-    
-    bool Player::getPatternDelayActive() 
-    {
-        return patternDelayActive;
-    }
-    void Player::setPatternDelay(u8 delay)
-    {
-        patternDelay = delay;
-    }
-    
-    u32 Player::getSampleRate()
-    {
-        return sampleRate;
-    }
-    
     void Player::setBpm(u8 val) 
     {
         bpm = val;
-    }
-    u8 Player::getBpm()
-    {
-        return bpm;
+        calcTickDuration();
     }
     
     void Player::setSpeed(u8 val)
     {
         speed = val;
     }
-    u8 Player::getSpeed()
-    {
-        return speed;
-    }
-    
-    void Player::setDoBreak()
-    {
-        doBreak = true;
-    }
-    
-    void Player::setNextRow(u8 row)
-    {
-        nextRow = row;
-    }
-    
-    void Player::setNextOrder(u8 order)
-    {
-        nextOrder = order;
-    }
-    
-    bool Player::getLoop() {
-        return loopModule;
-    }
-    void Player::setLoop(bool val) {
-        loopModule = val;
-    }
-    
     
     void Player::readPcm(sample_t& mix_l, sample_t& mix_r) 
     {
@@ -209,27 +144,13 @@ namespace vmp
                     effects->doEffect(tracks[i].getData()->getEffectCmd(), *this, tracks[i]);
             }
             
-
-/*
-            // maintain effects
-            for (k=0; k < player->module->num_channels; k++) {
-                if ((player->effect_map)[player->channels[k].effect_num])
-                    (player->effect_map)[player->channels[k].effect_num](player, k);
-            }
-            */
             // go for next tick
-            //printf("%d %d", currentTick, tickPos);
             currentTick++;
             tickPos = tickDuration;
-            //player->current_tick++;
-            //player->tick_pos = player->tick_duration;
-
             // maintain tick callback
             //if (player->tick_callback)
                 //(player->tick_callback)(player, player->current_order, player->current_pattern, player->current_row, player->current_tick, player->channels);
                 //(player->tick_callback)(player, player->callback_user_ptr);
-
-
         }
   
         mix_tmp_l = 0;
@@ -274,8 +195,7 @@ namespace vmp
     void Player::reset()
     {
         speed = module->getInitialSpeed();
-        bpm = module->getInitialBpm();
-        calcTickDuration();
+        setBpm(module->getInitialBpm());
         
         currentOrder = 0;
         nextOrder = 0;
@@ -301,10 +221,6 @@ namespace vmp
         
         reset();
 
-        
-        //if (effects) 
-        //    delete effects;
-        
         switch (module->getModuleType()) {
             case Module::MODULE_TYPE_MOD:
                 effects = std::shared_ptr<Effects>(new EffectsMOD());
@@ -317,49 +233,6 @@ namespace vmp
         for(i = 0; i < module->getNumTracks(); i++) 
             tracks[i].setPanning(module->getInitialPanning(i));
     }
-    
-    Module* Player::getModule()
-    {
-        return module;
-    }
-    
-    /* moved to effects section
-    void Player::setTrackFrequency(Track& track)
-    {
-        const float x = 1.007246412;
-        
-        Sample& sample = module->getSample(track.getInstrument());
-        int8_t finetune;
-        uint16_t period = track.getPeriod();
-
-        // no period? bail out 
-        if (!period)
-            return;
-
-        switch (module->getModuleType()) {
-            case Module::MODULE_TYPE_MOD:
-                // unusual: finetune is a signed nibble
-                finetune = (sample.getFinetune() >= 8 
-                        ? -(16 - sample.getFinetune()) 
-                        : sample.getFinetune());
-                track.setFrequency(DefsMOD::paulaFreq[0] / (period * 2));
-                
-                // TODO: will there be a day when we can get rid of libm here?
-                if (finetune != 0)
-                    track.setFrequency( track.getFrequency() * pow(x, finetune));
-
-                break;
-
-            //case module_type_stm:
-            case Module::MODULE_TYPE_S3M:
-                track.setFrequency(14317056L / period);
-                break;
-        }
-
-        // Performance tuning: do this calculation only once rather than every sample
-        track.setSampleStep(static_cast<precision_t>(track.getFrequency()) / static_cast<precision_t>(sampleRate));
-    }
-    */
     
     sample_mac_t Player::fetchSample(Track& track)
     {

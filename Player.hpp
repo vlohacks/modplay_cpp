@@ -37,53 +37,12 @@ namespace vmp
 {
     class Player 
     {
-    public:
-        Player(Module* m, u32 sample_rate);
-        Player(u32 sample_rate);
-        ~Player();
-        
-        void reset();
-        
-        void setModule(Module* m);
-        Module* getModule();
-        
-        void readPcm(sample_t& mix_l, sample_t& mix_r);
-        bool hasData();
-        
-        u8 getCurrentTick();
-        u8 getCurrentOrder();
-        u8 getCurrentRow();
-        
-        bool getLoop();
-        void setLoop(bool val);
-        
-        bool getPatternDelayActive();
-        void setPatternDelay(u8 delay);
-        u32 getSampleRate();
-        
-        typedef enum {
-            RESAMPLING_NONE,
-            RESAMPLING_LINEAR
-        } resampling_t;
-        
-        void setBpm(u8 val);
-        u8 getBpm();
-        
-        void setSpeed(u8 val);
-        u8 getSpeed();
-        
-        void calcTickDuration();
-        
-        void setDoBreak();
-        void setNextRow(u8 row);
-        void setNextOrder(u8 order);
-        
+
     private:
         Module* module;
         std::shared_ptr<Effects> effects;
         vector<Track> tracks;
         u32 sampleRate;
-        resampling_t resampling;
         
         // internal status variables
         u8 speed;
@@ -103,14 +62,51 @@ namespace vmp
         bool haveData;
         bool loopModule;
         
-        
-        precision_t calcTickDuration(const uint16_t bpm, const uint32_t sample_rate);
-        
-        //void setTrackFrequency(Track& track);
-        
         sample_mac_t fetchSample(Track& track);
+        void calcTickDuration();
+
+    public:
+        Player(Module* m, u32 sample_rate);
+        Player(u32 sample_rate);
+        ~Player();
+
+        typedef enum {
+            RESAMPLING_NONE,
+            RESAMPLING_LINEAR
+        } resampling_t;
         
+        void    reset();
         
+        void    setModule(Module* m);
+        Module* getModule()                 { return module; }
+        
+        void    readPcm(sample_t& mix_l, sample_t& mix_r);
+        
+        bool    hasData()                   { return haveData; }
+
+        u8      getCurrentTick()            { return currentTick; }
+        u8      getCurrentOrder()           { return currentOrder; }
+        u8      getCurrentRow()             { return currentRow; }
+        
+        bool    getLoop()                   { return loopModule; }
+        void    setLoop(bool val)           { loopModule = val; }
+        
+        bool    getPatternDelayActive()     { return patternDelayActive; }
+        void    setPatternDelay(u8 delay)   { patternDelay = delay; }
+        u32     getSampleRate()             { return sampleRate; }
+        
+        void    setBpm(u8 val);
+        u8      getBpm()                    { return bpm; }
+        
+        void    setSpeed(u8 val);
+        u8      getSpeed()                  { return speed; }
+        
+        void    setDoBreak()                { doBreak = true; }
+        void    setNextRow(u8 row)          { nextRow = row; }
+        void    setNextOrder(u8 order)      { nextOrder = order; }
+        
+    private:
+        resampling_t resampling;
         
     };
 }

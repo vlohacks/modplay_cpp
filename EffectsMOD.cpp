@@ -692,7 +692,6 @@ namespace vmp
                 player.setSpeed(data->getEffectValue());
             } else {
                 player.setBpm(data->getEffectValue());
-                player.calcTickDuration();// -> tick_duration = player_calc_tick_duration(player->bpm, player->sample_rate);
             }
         }    
     }

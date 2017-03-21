@@ -748,7 +748,6 @@ namespace vmp
         if (player.getCurrentTick() == 0) {
              if (data->getEffectValue() >= 0x20) {
                  player.setBpm(data->getEffectValue());
-                 player.calcTickDuration();
              }
         }
     }
