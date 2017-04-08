@@ -28,17 +28,12 @@
 #include "Player.hpp"
 #include "OutputRaw.hpp"
 #include "OutputAlsa.hpp"
+#include "OutputBenchmark.hpp"
 #include "IoMem.hpp"
 #include <iostream>
 
-#include <QApplication>
-#include "dreamit.h"
-#include "Dos.hpp"
-#include "OutputBenchmark.hpp"
-
 int main(int argc, char** argv) 
 {
-        //QApplication app(argc, argv);
 	vmp::IoFile f(argv[1], "rb");
         //vmp::IoMem f(dreamit, sizeof(dreamit));
       
@@ -68,14 +63,6 @@ int main(int argc, char** argv)
         
         o.start();
         
-        /*
-        vmp::Dos window;
-        window.setOutput(&o);
-        window.setWindowTitle("DREAMIT Operation System PRO");
-        window.resize(640, 64);
-        
-	window.show();
-	*/
         while (o.isRunning()) {
             sleep(0);
         }

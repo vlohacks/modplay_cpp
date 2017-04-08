@@ -3,12 +3,10 @@ project(vmp)
 
 find_package(Threads)
 find_package(ALSA)
-find_package(Qt5Core)
-find_package(Qt5Widgets)
 
 add_definitions(-std=c++11 -O3 -g)
 file(GLOB SOURCES "*.cpp")
 
 add_executable(vmp ${SOURCES})
-target_link_libraries(vmp ${CMAKE_THREAD_LIBS_INIT} ${ALSA_LIBRARIES} Qt5::Core Qt5::Widgets)
+target_link_libraries(vmp ${CMAKE_THREAD_LIBS_INIT} ${ALSA_LIBRARIES})
 
