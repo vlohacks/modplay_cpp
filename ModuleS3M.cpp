@@ -17,17 +17,15 @@ namespace vmp
     
     bool ModuleS3M::loadCheck(Io& io)
     {
-        char    signature[4];
+        u32     readSignature;
         size_t  savedPos;
 
-        memset(signature, 0, 4);
-
         savedPos = io.tell();
-        io.seek(0x2c, Io::IO_SEEK_SET);
-        io.read(signature, 4, 1);
+        io.seek(s3mSignatureOffset, Io::IO_SEEK_SET);
+        readSignature = io.readU32le();
         io.seek(savedPos, Io::IO_SEEK_SET);
 
-        if (!memcmp(signature, "SCRM", 4))
+        if (readSignature == s3mSignature)
             return true;
 
         return false;
@@ -51,6 +49,7 @@ namespace vmp
         // check if we really deal with a S3M file. If not, bail out
         if (!loadCheck(io)) {
             // TODO throw some Exception
+            throw ModuleFormatException(MODULE_TYPE_S3M);
             return;
         }
         

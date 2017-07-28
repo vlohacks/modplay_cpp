@@ -29,11 +29,10 @@ namespace vmp
 {
     class Exception 
     {
-        virtual const char* what() const throw() {
-            return "fuck";
-        }
+        virtual const char* what() const = 0;
+        virtual void outputSummary() const = 0;
     };
-    
+    /*
     class IoException 
     {
         IoException(const char* zeuch) : filename(zeuch) {};
@@ -42,7 +41,7 @@ namespace vmp
             return filename;
         }
     };
-    
+    */
     
 }
 

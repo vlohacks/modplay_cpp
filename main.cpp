@@ -29,18 +29,32 @@
 #include "OutputRaw.hpp"
 #include "OutputAlsa.hpp"
 #include "OutputBenchmark.hpp"
+#include "OutputSoundio.hpp"
 #include "IoMem.hpp"
 #include <iostream>
+#include "dreamit.h"
 
 int main(int argc, char** argv) 
 {
+    
+    vmp::ModuleMOD mod;
+    
+    try {
+        //vmp::IoMem f(dreamit, sizeof(dreamit));
 	vmp::IoFile f(argv[1], "rb");
+        f.seek(0, vmp::Io::IO_SEEK_SET);
+        mod.load(f);
+    } catch (vmp::IoOpenFileException e) {
+        e.outputSummary();
+        return 1;
+    } 
+    
         //vmp::IoMem f(dreamit, sizeof(dreamit));
       
-        f.seek(0, vmp::Io::IO_SEEK_SET);
         
-        vmp::ModuleS3M mod;
-        mod.load(f);
+        
+        
+        
         //vmp::ModuleUtils::dumpModule(mod);
         /*
         for (int i = 0; i < mod.getNumSamples(); i++) {
@@ -54,8 +68,11 @@ int main(int argc, char** argv)
         
         vmp::OutputOptionsAlsa oo;
         
+        
         //vmp::OutputRaw o(&player);
-        vmp::OutputAlsa o(oo, &player);
+        
+        //vmp::OutputAlsa o(oo, &player);
+        vmp::OutputSoundio o(&player);
         //vmp::OutputBenchmark o(&player);
         
         

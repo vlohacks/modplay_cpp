@@ -31,8 +31,8 @@
 #include "Pattern.hpp"
 #include "PatternData.hpp"
 #include "Sample.hpp"
-
 #include "Io.hpp"
+#include "Exception.hpp"
 
 namespace vmp 
 {
@@ -56,12 +56,24 @@ namespace vmp
         vector<u8> orders;
         vector<u8> initialPanning;
         
+        static const int numModuleTypes = 2;
+        
    
     public:
         typedef enum  {
             MODULE_TYPE_MOD,
             MODULE_TYPE_S3M
         } module_type_t;
+        
+        typedef struct {
+            const char*   defaultFileExt;
+            const char*   description;
+        } module_type_details_t;
+        
+        static constexpr module_type_details_t moduleTypeDetails[numModuleTypes] = {
+            { "mod", "Protracker / FastTracker Module" },
+            { "s3m", "Scream Tracker Module" }
+        };
         
         Module(const module_type_t module_type);
         ~Module();
@@ -85,11 +97,37 @@ namespace vmp
         bool            getFlag(const u32 flag) const                   { return flags & flag; }
         void            setFlag(const u32 flag)                         { flags |= flag; }
         void            clearFlag(const u32 flag)                       { flags &= ~flag; }
+        
+        class ModuleFormatException : public Exception 
+        {
+        private:
+            const module_type_t moduleType;
+
+
+        public:
+            ModuleFormatException(const module_type_t type)
+                : moduleType(type)
+            {}
+
+            const char* what() const override {
+                return "Invalid module format";
+            }
+
+            void outputSummary() const override
+            {
+                printf("Data is not a valid %s (.%s)\n", moduleTypeDetails[moduleType].description, moduleTypeDetails[moduleType].defaultFileExt);
+            }
+
+        };        
+        
     
     protected:
         const module_type_t moduleType;
         
     };
+    
+
+    
 }
 
 #endif	/* MODULE_HPP */

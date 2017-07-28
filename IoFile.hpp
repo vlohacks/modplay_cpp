@@ -46,7 +46,33 @@ namespace vmp
         void write(void* ptr, size_t size, size_t n) override;
         size_t tell() override;
         bool eof() override;
+                 
     };
+    
+    class IoOpenFileException : public Exception 
+    {
+    private:
+        const char* filename;
+
+    public:
+
+        IoOpenFileException(const char* name)
+            : filename(name)
+        {}
+
+        const char* what() const override {
+            return "IO open file exception";
+        }
+
+        void outputSummary() const override
+        {
+            printf("Error opening file: %s\n", filename);
+        }
+
+    };        
+    
+    
+
 }
 
 #endif /* IOFILE_HPP */

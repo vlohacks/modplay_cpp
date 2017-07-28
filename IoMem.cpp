@@ -41,7 +41,7 @@ namespace vmp
                 position += size;
                 ptr += size;
             } else {
-                throw Exception();
+                throw IoBeyondBoundsException();
             }
         }
     }
@@ -56,7 +56,7 @@ namespace vmp
                 position += size;
                 ptr += size;
             } else {
-                throw Exception();
+                throw IoBeyondBoundsException();
             }
         }
     }

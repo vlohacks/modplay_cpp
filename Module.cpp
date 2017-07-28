@@ -20,6 +20,8 @@
 
 namespace vmp 
 {
+    constexpr Module::module_type_details_t Module::moduleTypeDetails[Module::numModuleTypes];
+    
     Module::Module(const module_type_t module_type) 
         : moduleType(module_type)
     {}    

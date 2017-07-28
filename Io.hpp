@@ -34,6 +34,7 @@
 #define	IO_HPP
 
 #include "Types.hpp"
+#include "Exception.hpp"
 
 namespace vmp 
 {
@@ -99,8 +100,24 @@ namespace vmp
         void writeS16be(s16 val);
         void writeS32le(s32 val);
         void writeS32be(s32 val);
+
+        class IoBeyondBoundsException : public Exception 
+        {
+
+        public:
+            const char* what() const override {
+                return "Io operation beyond file Exception";
+            }
+
+            void outputSummary() const override
+            {
+                printf("Tried to read/write data beyond file/memory boundaries");
+            }
+
+        };
         
     };
+    
 }
 
 #endif	/* IO_HPP */
