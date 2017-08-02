@@ -78,7 +78,7 @@ namespace vmp
         Module(const module_type_t module_type);
         ~Module();
         
-        virtual bool loadCheck(Io& io) = 0;
+        static bool loadCheck(Io& io);
         virtual void load(Io& io) = 0;
         
         Pattern&        getPattern(u8 pattern_no)                       { return patterns[pattern_no]; }
@@ -96,30 +96,7 @@ namespace vmp
         
         bool            getFlag(const u32 flag) const                   { return flags & flag; }
         void            setFlag(const u32 flag)                         { flags |= flag; }
-        void            clearFlag(const u32 flag)                       { flags &= ~flag; }
-        
-        class ModuleFormatException : public Exception 
-        {
-        private:
-            const module_type_t moduleType;
-
-
-        public:
-            ModuleFormatException(const module_type_t type)
-                : moduleType(type)
-            {}
-
-            const char* what() const override {
-                return "Invalid module format";
-            }
-
-            void outputSummary() const override
-            {
-                printf("Data is not a valid %s (.%s)\n", moduleTypeDetails[moduleType].description, moduleTypeDetails[moduleType].defaultFileExt);
-            }
-
-        };        
-        
+        void            clearFlag(const u32 flag)                       { flags &= ~flag; }        
     
     protected:
         const module_type_t moduleType;

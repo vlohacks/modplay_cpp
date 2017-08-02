@@ -23,13 +23,13 @@ namespace vmp
     private:
         u16 version;
         u8  initialMasterVolume;
-        const u32       s3mSignature = 0x4d524353;    // "SCRM"
-        const size_t    s3mSignatureOffset = 0x2c;
+        static const u32       s3mSignature = 0x4d524353;    // "SCRM"
+        static const size_t    s3mSignatureOffset = 0x2c;
     public:
         
         ModuleS3M();
         
-        bool loadCheck(Io& io);
+        static bool loadCheck(Io& io);
         void load(Io& io);
         
         enum S3MFlags {

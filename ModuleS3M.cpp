@@ -49,7 +49,7 @@ namespace vmp
         // check if we really deal with a S3M file. If not, bail out
         if (!loadCheck(io)) {
             // TODO throw some Exception
-            throw ModuleFormatException(MODULE_TYPE_S3M);
+            throw LoaderException("Not valid module type", MODULE_TYPE_S3M);
             return;
         }
         

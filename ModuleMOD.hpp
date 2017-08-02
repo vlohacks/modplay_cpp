@@ -64,7 +64,7 @@ namespace vmp
        
         ModuleMOD();
         
-        bool loadCheck(Io& io);
+        static bool loadCheck(Io& io);
         void load(Io& io);       
     };
 }

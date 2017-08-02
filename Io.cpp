@@ -92,6 +92,4 @@ namespace vmp
     void Io::writeU32le(u32 val) { write32le(static_cast<u32>(val)); }
     void Io::writeU32be(u32 val) { write32be(static_cast<u32>(val)); }
     
-    
-
 }

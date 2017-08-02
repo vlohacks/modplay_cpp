@@ -25,23 +25,49 @@
 #ifndef EXCEPTION_HPP
 #define EXCEPTION_HPP
 
+//#include "Module.hpp"
+
 namespace vmp 
 {
     class Exception 
     {
-        virtual const char* what() const = 0;
-        virtual void outputSummary() const = 0;
+	public:
+		const char* text;
+		Exception(const char* what)
+			: text(what)
+		{}
     };
-    /*
-    class IoException 
+    
+    
+    class IoException : public Exception 
     {
-        IoException(const char* zeuch) : filename(zeuch) {};
+    private:
         const char* filename;
-        virtual const char* what() const throw() {
-            return filename;
-        }
+        const void* ptr;
+
+    public:
+
+        IoException(const char* text, const char* currentfile, const void* currentptr)
+            : Exception(text)
+            , filename(currentfile)
+            , ptr(currentptr)
+        {}
     };
-    */
+    
+    
+    class LoaderException : public Exception
+    {
+	private:
+		const int moduleType;
+		
+	public:
+		LoaderException(const char* text, int theType)
+			: Exception(text)
+			, moduleType(theType)
+		{}
+	};
+
+    
     
 }
 

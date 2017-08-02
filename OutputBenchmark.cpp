@@ -33,7 +33,7 @@ namespace vmp
             sample_count++;
             
             if (current_time != last_time) {
-                printf("%lu samples/sec\n", sample_count);
+                printf("%u samples/sec\n", sample_count);
                 sample_count = 0;
                 last_time = current_time;
             }

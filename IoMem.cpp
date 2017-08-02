@@ -21,15 +21,13 @@
 namespace vmp
 {
     IoMem::IoMem(void* ptr, size_t size) 
-    {
-        memPtr = ptr;
-        memSize = size;
-        position = 0;
-    }
+		: memPtr(ptr)
+		, memSize(size)
+		, position(0)
+    {}
     
     IoMem::~IoMem() 
-    {
-    }
+    {}
     
     void IoMem::read(void* sptr, size_t size, size_t n)
     {
@@ -41,7 +39,7 @@ namespace vmp
                 position += size;
                 ptr += size;
             } else {
-                throw IoBeyondBoundsException();
+                throw IoException("IO: read beyond bounds", 0, memPtr);
             }
         }
     }
@@ -56,7 +54,7 @@ namespace vmp
                 position += size;
                 ptr += size;
             } else {
-                throw IoBeyondBoundsException();
+                throw IoException("IO: write beyond bounds", 0, memPtr);
             }
         }
     }
@@ -83,7 +81,7 @@ namespace vmp
         }
 
         if (position > memSize)
-            position = memSize;
+            throw IoException("IO: seek beyond bounds", 0, memPtr);
 
     }
 

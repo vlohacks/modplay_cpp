@@ -27,7 +27,6 @@ namespace vmp
         : running(false)
         , player(p)
     {
-        //player = p;
     }
     
     void Output::setPlayer(Player* p)

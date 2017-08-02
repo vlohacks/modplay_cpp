@@ -22,8 +22,7 @@
 #include <chrono>
 
 #include "Pattern.hpp"
-#include "ModuleMOD.hpp"
-#include "ModuleS3M.hpp"
+#include "ModuleFactory.hpp"
 #include "ModuleUtils.hpp"
 #include "Player.hpp"
 #include "OutputRaw.hpp"
@@ -37,58 +36,43 @@
 int main(int argc, char** argv) 
 {
     
-    vmp::ModuleMOD mod;
+    //vmp::ModuleS3M mod;
+    
+    vmp::Module* mod;
     
     try {
         //vmp::IoMem f(dreamit, sizeof(dreamit));
-	vmp::IoFile f(argv[1], "rb");
+		vmp::IoFile f(argv[1], "rb");
         f.seek(0, vmp::Io::IO_SEEK_SET);
-        mod.load(f);
-    } catch (vmp::IoOpenFileException e) {
-        e.outputSummary();
+        mod = vmp::ModuleFactory::byHeader(f);
+    } catch (vmp::IoException e) {
         return 1;
     } 
     
-        //vmp::IoMem f(dreamit, sizeof(dreamit));
-      
+	vmp::Player player(44100);
+	player.setModule(mod);
+        
+	vmp::OutputOptionsAlsa oo;
         
         
+	//vmp::OutputRaw o(&player);
+	//vmp::OutputAlsa o(oo, &player);
+	vmp::OutputSoundio o(&player);
+	//vmp::OutputBenchmark o(&player);
         
-        
-        //vmp::ModuleUtils::dumpModule(mod);
-        /*
-        for (int i = 0; i < mod.getNumSamples(); i++) {
-            vmp::Sample& s = mod.getSample(i);
-            printf("%-32s l: %06d ll: %06d, ls: %06d le: %06d\n", s.getName().c_str(), s.getLength(), s.getLoopLength(), s.getLoopStart(), s.getLoopEnd());
-        }
-        */
-        
-        vmp::Player player(44100);
-        player.setModule(&mod);
-        
-        vmp::OutputOptionsAlsa oo;
-        
-        
-        //vmp::OutputRaw o(&player);
-        
-        //vmp::OutputAlsa o(oo, &player);
-        vmp::OutputSoundio o(&player);
-        //vmp::OutputBenchmark o(&player);
-        
-        
-        player.setLoop(true);
-        
-        o.start();
-        
-        while (o.isRunning()) {
-            sleep(0);
-        }
+	player.setLoop(true);
+	
+	o.start();
+	
+	while (o.isRunning()) {
+		sleep(0);
+	}
 
-        int r = 0;
+	int r = 0;
 	//int r =  app.exec();
         //o.setFilename("-");
-        if (o.isRunning())
-            o.stop();
+	if (o.isRunning())
+		o.stop();
         
 	return r;
 }

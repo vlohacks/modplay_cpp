@@ -24,7 +24,7 @@ namespace vmp
     {
         f = fopen(filename, mode);
         if (f == 0) {
-            throw IoOpenFileException(filename);
+            throw Exception("Error opening file");
         }
     }
     
@@ -47,14 +47,14 @@ namespace vmp
     void IoFile::read(void* ptr, std::size_t size, std::size_t n)
     {
         if (fread(ptr, size, n, f) != n) {
-            throw IoBeyondBoundsException();
+            throw Exception("IO: reading past end of file");
         }
     }
     
     void IoFile::write(void* ptr, size_t size, size_t n)
     {
         if (fwrite(ptr, size, n, f) != n) {
-            throw IoBeyondBoundsException();
+            throw Exception("IO: error writing file");
         }
     }
     
