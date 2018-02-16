@@ -24,6 +24,7 @@ namespace vmp
         , sampleStep(0)
         , effectStorage(128)
         , patternLoopPosition(0)
+        , patternLoopCount(0)
         , volume(64)
         , fxVolume(64)
     {}
