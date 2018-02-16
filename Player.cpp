@@ -93,7 +93,7 @@ namespace vmp
                     }
 
                     // end of song reached...
-                    if (nextOrder > module->getNumOrders()) {
+                    if (nextOrder >= module->getNumOrders()) {
                         // loop if looping enabled 
                         if (loopModule) {
                             nextOrder = 0;
@@ -118,12 +118,12 @@ namespace vmp
                 //    (player->row_callback)(player, player->callback_user_ptr);
 
                 // fetch new pattern data from module
-                //fprintf(stderr, "%02d:%02d:%02d|", currentOrder, currentPattern, currentRow);
+                fprintf(stderr, "%02d:%02d:%02d|", currentOrder, currentPattern, currentRow);
                 for (i = 0; i < module->getNumTracks(); i++) {
                     tracks[i].setData(&module->getData(currentPattern, currentRow, i));
                     
                     //if (i > 5)
-                    //ModuleUtils::dumpData(module->getData(currentPattern, currentRow, i));
+                    ModuleUtils::dumpData(module->getData(currentPattern, currentRow, i));
                     //player->channels[k].effect_num = current_data->effect_num;
                     //player->channels[k].effect_value = current_data->effect_value;
 
@@ -133,7 +133,7 @@ namespace vmp
                     //fprintf(stderr,  "==%02d==", tracks[i].getInstrument());
                                         
                 }
-                //fprintf(stderr, "\n");   
+                fprintf(stderr, "\n");   
                 
                 
 
