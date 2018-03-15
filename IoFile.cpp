@@ -44,18 +44,14 @@ namespace vmp
         }
     }
     
-    void IoFile::read(void* ptr, std::size_t size, std::size_t n)
+    int IoFile::read(void* ptr, std::size_t size, std::size_t n)
     {
-        if (fread(ptr, size, n, f) != n) {
-            throw Exception("IO: reading past end of file");
-        }
+        return fread(ptr, size, n, f);
     }
     
-    void IoFile::write(void* ptr, size_t size, size_t n)
+    int IoFile::write(void* ptr, size_t size, size_t n)
     {
-        if (fwrite(ptr, size, n, f) != n) {
-            throw Exception("IO: error writing file");
-        }
+        return fwrite(ptr, size, n, f);
     }
     
     size_t IoFile::tell() {

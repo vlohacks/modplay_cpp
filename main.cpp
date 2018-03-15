@@ -35,9 +35,6 @@
 
 int main(int argc, char** argv) 
 {
-    
-    //vmp::ModuleS3M mod;
-    
     vmp::Module* mod;
     
     try {

@@ -70,8 +70,8 @@ namespace vmp
          */
         virtual ~Io() {};
         virtual void seek(size_t n, whence_t whence) = 0;
-        virtual void read(void* ptr, size_t size, size_t n) = 0;
-        virtual void write(void* ptr, size_t size, size_t n) = 0;
+        virtual int read(void* ptr, size_t size, size_t n) = 0;
+        virtual int write(void* ptr, size_t size, size_t n) = 0;
         virtual size_t tell() = 0;
         virtual bool eof() = 0;
         
@@ -88,6 +88,12 @@ namespace vmp
         s16 readS16be();
         s32 readS32le();
         s32 readS32be();
+        
+        template<typename T>
+		T readT();
+		
+		template<typename T>
+		void writeT(T val);
         
         void writeU8(u8 val);
         void writeU16le(u16 val);

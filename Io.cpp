@@ -78,6 +78,19 @@ namespace vmp
     u32 Io::readU32le() { return static_cast<u32>(read32le()); }
     u32 Io::readU32be() { return static_cast<u32>(read32be()); }
     
+	template<typename T>
+	T Io::readT()
+	{
+		T tmp;
+		this->read(static_cast<void*>(tmp), sizeof(T), 1);
+		return tmp;
+	}
+	
+	template<typename T>
+	void Io::writeT(T val) 
+	{
+		this->write(static_cast<void*>(val), sizeof(val), 1);
+	}
 
     void Io::writeS8(s8 val) { write8(static_cast<s8>(val)); }
     void Io::writeU8(u8 val) { write8(static_cast<u8>(val)); }

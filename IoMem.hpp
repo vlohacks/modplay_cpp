@@ -44,8 +44,8 @@ namespace vmp
         ~IoMem();
         
         void seek(size_t n, whence_t whence) override;
-        void read(void* ptr, size_t size, size_t n) override;
-        void write(void* ptr, size_t size, size_t n) override;
+        int read(void* ptr, size_t size, size_t n) override;
+        int write(void* ptr, size_t size, size_t n) override;
         size_t tell() override;
         bool eof() override;
     };

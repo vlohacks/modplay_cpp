@@ -29,7 +29,7 @@ namespace vmp
     IoMem::~IoMem() 
     {}
     
-    void IoMem::read(void* sptr, size_t size, size_t n)
+    int IoMem::read(void* sptr, size_t size, size_t n)
     {
         int i;
         char* ptr = static_cast<char*>(sptr);
@@ -39,12 +39,13 @@ namespace vmp
                 position += size;
                 ptr += size;
             } else {
-                throw IoException("IO: read beyond bounds", 0, memPtr);
-            }
+				return i;
+			}
         }
+        return i;
     }
 
-    void IoMem::write(void* sptr, size_t size, size_t n)
+    int IoMem::write(void* sptr, size_t size, size_t n)
     {
         int i;
         char* ptr = static_cast<char*>(sptr);
@@ -54,9 +55,10 @@ namespace vmp
                 position += size;
                 ptr += size;
             } else {
-                throw IoException("IO: write beyond bounds", 0, memPtr);
-            }
+				return i;
+			}
         }
+        return i;
     }
 
     size_t IoMem::tell()

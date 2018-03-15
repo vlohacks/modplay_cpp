@@ -63,8 +63,6 @@ namespace vmp
             frames_left -= frame_count;
         }
 
-        
- 
     }
     
     void OutputSoundio::start()
@@ -124,6 +122,8 @@ namespace vmp
 #ifdef MIXING_S8
         outstream->format = SoundIoFormatS8;
 #endif
+       
+		outstream->
         
         outstream->userdata = this;
         outstream->write_callback = OutputSoundio::soundioCallback;
@@ -142,9 +142,6 @@ namespace vmp
             fprintf(stderr, "unable to start device: %s\n", soundio_strerror(err));
             exit(1);
         }
-        
-        
-        
         
         running = true;
     }
