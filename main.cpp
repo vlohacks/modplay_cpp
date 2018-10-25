@@ -31,7 +31,6 @@
 #include "OutputSoundio.hpp"
 #include "IoMem.hpp"
 #include <iostream>
-#include "dreamit.h"
 
 int main(int argc, char** argv) 
 {

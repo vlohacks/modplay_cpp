@@ -123,8 +123,6 @@ namespace vmp
         outstream->format = SoundIoFormatS8;
 #endif
        
-		outstream->
-        
         outstream->userdata = this;
         outstream->write_callback = OutputSoundio::soundioCallback;
         outstream->sample_rate = player->getSampleRate();
